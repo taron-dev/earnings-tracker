@@ -15,6 +15,15 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 1.8 Nasadenie backendu na Railway ([postup](./setup/railway.md)): GitHub repo, Dockerfile, env premenné, verejná doména, health UP
    - [x] 1.9 Nasadenie Flutter webu na GitHub Pages ([postup](./setup/github-pages.md)): verejné repo, GitHub Actions, CORS a Supabase Redirect URL na produkčnú doménu, naživo vidím „Hello, user"
 2. **Doménové jadro** v Springu cez TDD: poradie pokrývania, pokrytie položiek, hranica základu, najbližší cieľ v hodinách, nepriradený zárobok.
+   Návrh podkrokov (upresniť pred začatím). Čistá doména bez Springu, databázy a REST, každý podkrok jeden TDD cyklus:
+   - [ ] 2.1 Hodnotové typy: suma peňazí (EUR, `BigDecimal`), hodiny, hodinová sadzba, okno zárabania (od–do)
+   - [ ] 2.2 Záznam práce a zárobok: hodiny × sadzba platná v čase záznamu, súčet zárobku za okno plánu
+   - [ ] 2.3 Poradie pokrývania a pokrytie položiek: zárobok napĺňa položky postupne, každú celú pred ďalšou; pokrytá, rozpracovaná, nepokrytá
+   - [ ] 2.4 Hranica základu: rozdelenie položiek na základ a extra, či je základ pokrytý
+   - [ ] 2.5 Najbližší cieľ: prvá nepokrytá položka, chýbajúce hodiny pri aktuálnej sadzbe (zaokrúhlenie nahor)
+   - [ ] 2.6 Nepriradený zárobok: zárobok nad súčet všetkých položiek
+   - [ ] 2.7 Okrajové prípady: prázdny plán, nulový zárobok, zmena sadzby počas okna, záznamy mimo okna
+   - [ ] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.

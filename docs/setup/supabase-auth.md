@@ -44,3 +44,9 @@ Budú treba v `backend/.env` (krok 1.4) a vo Flutteri (krok 1.6):
 - [X] **Project URL** (`https://<project-ref>.supabase.co`) → `SUPABASE_URL`
 - [X] **Publishable key** (alebo legacy anon key) → Flutter; je verejný, nepatrí do backendu
 - [X] **Session pooler** connection string (tlačidlo Connect) → `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`
+
+## 6. Data API
+
+Supabase Data API (REST nad schémou `public`) nepoužívame, všetok prístup k dátam ide cez Spring ([ADR 0001](../adr/0001-flutter-spring-supabase-as-db-and-auth-only.md)). Inak by tabuľky vytvorené Liquibase boli dostupné komukoľvek s publishable key.
+
+- [x] Project Settings → **Data API**: vypnuté.
