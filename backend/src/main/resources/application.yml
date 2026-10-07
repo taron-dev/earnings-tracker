@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: earnings-tracker
+  config:
+    # Local secrets (DB password, Supabase URL); in production the same keys come from env variables.
+    import: optional:file:.env[.properties]
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${SUPABASE_URL}/auth/v1
+          jwk-set-uri: ${SUPABASE_URL}/auth/v1/.well-known/jwks.json
+          audiences: authenticated
+          jws-algorithms: ES256, RS256
+
+server:
+  # Railway (and most PaaS) inject the port to listen on.
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+  keep-alive:
+    # Supabase free tier pauses after 7 days of inactivity (ADR 0002).
+    cron: "0 0 */12 * * *"
