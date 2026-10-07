@@ -30,6 +30,15 @@ Skopíruj `env.example.json` do `env.json` (git-ignored) a vyplň:
 | `SUPABASE_PUBLISHABLE_KEY` | Publishable key (alebo legacy anon key), je verejný |
 | `API_BASE_URL` | URL backendu, lokálne `http://localhost:8080` |
 
+## Prostredia
+
+| Prostredie | URL |
+|---|---|
+| Lokálne | http://localhost:3000 |
+| Produkcia (GitHub Pages) | https://taron-dev.github.io/earnings-tracker/ |
+
+Produkčný build a deploy robí [GitHub Actions workflow](../.github/workflows/frontend-pages.yml), hodnoty `env.json` berie z repo Variables. Postup: [docs/setup/github-pages.md](../docs/setup/github-pages.md).
+
 ## Spustenie
 
 ```sh

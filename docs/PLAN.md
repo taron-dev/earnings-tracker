@@ -13,7 +13,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 1.6 Prihlásenie vo Flutteri cez `supabase_flutter` (Google a magic link), `go_router` presmerovanie na `/login`
    - [x] 1.7 Flutter volá `/api/hello` cez `dio` s access tokenom, lokálne end-to-end vidím „Hello, …"
    - [x] 1.8 Nasadenie backendu na Railway ([postup](./setup/railway.md)): GitHub repo, Dockerfile, env premenné, verejná doména, health UP
-   - [ ] 1.9 Nasadenie Flutter webu (statický hosting), CORS a Supabase Redirect URL na produkčnú doménu, naživo vidím „Hello, user"
+   - [ ] 1.9 Nasadenie Flutter webu na GitHub Pages ([postup](./setup/github-pages.md)): verejné repo, GitHub Actions, CORS a Supabase Redirect URL na produkčnú doménu, naživo vidím „Hello, user"
 2. **Doménové jadro** v Springu cez TDD: poradie pokrývania, pokrytie položiek, hranica základu, najbližší cieľ v hodinách, nepriradený zárobok.
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.

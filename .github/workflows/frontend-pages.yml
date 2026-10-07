@@ -1,0 +1,67 @@
+name: Frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Flutter version from .fvmrc
+        id: fvm
+        run: echo "version=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.fvm.outputs.version }}
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter test
+
+      # Public values only (they end up in the browser bundle); set in repo Settings → Variables.
+      - name: Write env.json
+        run: |
+          cat > env.json <<JSON
+          {
+            "SUPABASE_URL": "${{ vars.SUPABASE_URL }}",
+            "SUPABASE_PUBLISHABLE_KEY": "${{ vars.SUPABASE_PUBLISHABLE_KEY }}",
+            "API_BASE_URL": "${{ vars.API_BASE_URL }}"
+          }
+          JSON
+
+      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/" --dart-define-from-file=env.json
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

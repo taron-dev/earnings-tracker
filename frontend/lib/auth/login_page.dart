@@ -14,7 +14,11 @@ class _LoginPageState extends State<LoginPage> {
   String? _message;
 
   /// Supabase redirects back here after sign-in; must be listed in Supabase Redirect URLs.
-  String get _redirectTo => Uri.base.origin;
+  /// Keeps the base path, because on GitHub Pages the app lives under /earnings-tracker/.
+  String get _redirectTo {
+    final base = Uri.base;
+    return Uri(scheme: base.scheme, host: base.host, port: base.port, path: base.path).toString();
+  }
 
   Future<void> _signInWithGoogle() async {
     await Supabase.instance.client.auth.signInWithOAuth(
