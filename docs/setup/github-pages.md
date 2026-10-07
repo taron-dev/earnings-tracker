@@ -6,9 +6,9 @@ Build a deploy robí workflow [`.github/workflows/frontend-pages.yml`](../../.gi
 
 ## 1. GitHub
 
-- [ ] Settings → General → Danger Zone → **Change visibility → Public** (Pages zadarmo len pre verejné repo).
-- [ ] Settings → **Pages** → Build and deployment → Source: **GitHub Actions**.
-- [ ] Repozitár → **Settings** → v ľavom menu sekcia *Security* → **Secrets and variables** → **Actions** → záložka **Variables** → tlačidlo **New repository variable** (URL: `https://github.com/taron-dev/earnings-tracker/settings/variables/actions`).
+- [x] Settings → General → Danger Zone → **Change visibility → Public** (Pages zadarmo len pre verejné repo).
+- [x] Settings → **Pages** → Build and deployment → Source: **GitHub Actions**.
+- [x] Repozitár → **Settings** → v ľavom menu sekcia *Security* → **Secrets and variables** → **Actions** → záložka **Variables** → tlačidlo **New repository variable** (URL: `https://github.com/taron-dev/earnings-tracker/settings/variables/actions`).
   - Nie **Settings → Environments** (`github-pages`): build job žiadne environment nepoužíva, takže tam uložené premenné nevidí a app sa zostaví s prázdnou konfiguráciou.
   - Nie záložka Secrets: hodnoty sú verejné (skončia v prehliadači). Workflow by ich síce zo Secrets tiež prečítal, ale Variables sú pre ne správne miesto.
   - Premenné:
@@ -20,19 +20,19 @@ Build a deploy robí workflow [`.github/workflows/frontend-pages.yml`](../../.gi
 
 Authentication → URL Configuration:
 
-- [ ] **Site URL**: `https://taron-dev.github.io/earnings-tracker/`
-- [ ] **Redirect URLs**: pridať `https://taron-dev.github.io/earnings-tracker/**` (`http://localhost:3000/**` nechať kvôli vývoju).
+- [x] **Site URL**: `https://taron-dev.github.io/earnings-tracker/`
+- [x] **Redirect URLs**: pridať `https://taron-dev.github.io/earnings-tracker/**` (`http://localhost:3000/**` nechať kvôli vývoju).
 
 ## 3. Google Cloud Console
 
-- [ ] APIs & Services → Credentials → OAuth client → **Authorized JavaScript origins**: pridať `https://taron-dev.github.io`.
+- [x] APIs & Services → Credentials → OAuth client → **Authorized JavaScript origins**: pridať `https://taron-dev.github.io`.
 
 ## 4. Railway (CORS backendu)
 
-- [ ] Variables → `CORS_ALLOWED_ORIGINS`: `http://localhost:3000,https://taron-dev.github.io` (origin je bez cesty `/earnings-tracker/`). Railway potom backend reštartuje.
+- [x] Variables → `CORS_ALLOWED_ORIGINS`: `http://localhost:3000,https://taron-dev.github.io` (origin je bez cesty `/earnings-tracker/`). Railway potom backend reštartuje.
 
 ## 5. Deploy a overenie
 
-- [ ] Pushnúť `main` (alebo Actions → *Frontend to GitHub Pages* → Run workflow).
-- [ ] Workflow prebehne zelene.
-- [ ] Na https://taron-dev.github.io/earnings-tracker/ sa prihlásiť cez Google aj cez magic link a vidieť „Hello, &lt;email&gt;".
+- [x] Pushnúť `main` (alebo Actions → *Frontend to GitHub Pages* → Run workflow).
+- [x] Workflow prebehne zelene.
+- [x] Na https://taron-dev.github.io/earnings-tracker/ sa prihlásiť cez Google aj cez magic link a vidieť „Hello, &lt;email&gt;".
