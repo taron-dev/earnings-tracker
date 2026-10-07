@@ -6,15 +6,41 @@ import 'router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Config.ensureComplete();
+  try {
+    Config.ensureComplete();
 
-  // Also picks up the session from the redirect URL after Google / magic link sign-in.
-  await Supabase.initialize(
-    url: Config.supabaseUrl,
-    publishableKey: Config.supabasePublishableKey,
-  );
+    // Also picks up the session from the redirect URL after Google / magic link sign-in.
+    await Supabase.initialize(
+      url: Config.supabaseUrl,
+      publishableKey: Config.supabasePublishableKey,
+    );
+  } catch (e) {
+    // Without this a broken deploy is just a blank white page.
+    runApp(_StartupErrorApp(error: e));
+    return;
+  }
 
   runApp(const EarningsTrackerApp());
+}
+
+class _StartupErrorApp extends StatelessWidget {
+  const _StartupErrorApp({required this.error});
+
+  final Object error;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text('Aplikáciu sa nepodarilo spustiť:\n$error', textAlign: TextAlign.center),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class EarningsTrackerApp extends StatelessWidget {

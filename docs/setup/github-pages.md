@@ -8,10 +8,13 @@ Build a deploy robí workflow [`.github/workflows/frontend-pages.yml`](../../.gi
 
 - [ ] Settings → General → Danger Zone → **Change visibility → Public** (Pages zadarmo len pre verejné repo).
 - [ ] Settings → **Pages** → Build and deployment → Source: **GitHub Actions**.
-- [ ] Settings → Secrets and variables → Actions → záložka **Variables** → New repository variable (sú verejné, skončia v prehliadači, preto nie Secrets):
-  - `SUPABASE_URL`: `https://<project-ref>.supabase.co`
-  - `SUPABASE_PUBLISHABLE_KEY`: publishable key
-  - `API_BASE_URL`: `https://earnings-tracker-production-984f.up.railway.app`
+- [ ] Repozitár → **Settings** → v ľavom menu sekcia *Security* → **Secrets and variables** → **Actions** → záložka **Variables** → tlačidlo **New repository variable** (URL: `https://github.com/taron-dev/earnings-tracker/settings/variables/actions`).
+  - Nie **Settings → Environments** (`github-pages`): build job žiadne environment nepoužíva, takže tam uložené premenné nevidí a app sa zostaví s prázdnou konfiguráciou.
+  - Nie záložka Secrets: hodnoty sú verejné (skončia v prehliadači). Workflow by ich síce zo Secrets tiež prečítal, ale Variables sú pre ne správne miesto.
+  - Premenné:
+    - `SUPABASE_URL`: `https://<project-ref>.supabase.co`
+    - `SUPABASE_PUBLISHABLE_KEY`: publishable key
+    - `API_BASE_URL`: `https://earnings-tracker-production-984f.up.railway.app`
 
 ## 2. Supabase
 

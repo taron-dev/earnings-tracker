@@ -39,16 +39,20 @@ jobs:
       - run: flutter pub get
       - run: flutter test
 
-      # Public values only (they end up in the browser bundle); set in repo Settings → Variables.
+      # Public values only (they end up in the browser bundle); repo Settings → Variables (Secrets work too).
       - name: Write env.json
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_PUBLISHABLE_KEY }}
+          API_BASE_URL: ${{ vars.API_BASE_URL || secrets.API_BASE_URL }}
         run: |
-          cat > env.json <<JSON
-          {
-            "SUPABASE_URL": "${{ vars.SUPABASE_URL }}",
-            "SUPABASE_PUBLISHABLE_KEY": "${{ vars.SUPABASE_PUBLISHABLE_KEY }}",
-            "API_BASE_URL": "${{ vars.API_BASE_URL }}"
-          }
-          JSON
+          for name in SUPABASE_URL SUPABASE_PUBLISHABLE_KEY API_BASE_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Repository variable $name is not set (Settings → Secrets and variables → Actions → Variables)"
+              exit 1
+            fi
+          done
+          jq -n '{SUPABASE_URL: env.SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY: env.SUPABASE_PUBLISHABLE_KEY, API_BASE_URL: env.API_BASE_URL}' > env.json
 
       - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/" --dart-define-from-file=env.json
 
