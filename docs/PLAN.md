@@ -12,7 +12,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 1.5 Flutter kostra v `frontend/`: Flutter SDK cez FVM (3.47.6, `.fvmrc`), `flutter create` s platformou web
    - [x] 1.6 Prihlásenie vo Flutteri cez `supabase_flutter` (Google a magic link), `go_router` presmerovanie na `/login`
    - [x] 1.7 Flutter volá `/api/hello` cez `dio` s access tokenom, lokálne end-to-end vidím „Hello, …"
-   - [ ] 1.8 Nasadenie backendu na Railway ([postup](./setup/railway.md)): GitHub repo, Dockerfile, env premenné, verejná doména, health UP
+   - [x] 1.8 Nasadenie backendu na Railway ([postup](./setup/railway.md)): GitHub repo, Dockerfile, env premenné, verejná doména, health UP
    - [ ] 1.9 Nasadenie Flutter webu (statický hosting), CORS a Supabase Redirect URL na produkčnú doménu, naživo vidím „Hello, user"
 2. **Doménové jadro** v Springu cez TDD: poradie pokrývania, pokrytie položiek, hranica základu, najbližší cieľ v hodinách, nepriradený zárobok.
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.

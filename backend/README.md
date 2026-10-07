@@ -45,6 +45,15 @@ Hodnoty sa čítajú z env premenných; lokálne z `backend/.env` (git-ignored, 
 
 Nastavenie Supabase Auth: [docs/setup/supabase-auth.md](../docs/setup/supabase-auth.md).
 
+## Prostredia
+
+| Prostredie | URL |
+|---|---|
+| Lokálne | http://localhost:8080 |
+| Produkcia (Railway, Dockerfile builder) | https://earnings-tracker-production-984f.up.railway.app |
+
+Nasadenie: [docs/setup/railway.md](../docs/setup/railway.md).
+
 ## Spustenie
 
 ```sh
