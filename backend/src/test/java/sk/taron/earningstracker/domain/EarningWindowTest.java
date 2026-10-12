@@ -60,4 +60,12 @@ class EarningWindowTest {
         assertThat(OCTOBER.overlaps(november)).isFalse();
         assertThat(november.overlaps(OCTOBER)).isFalse();
     }
+
+    @Test
+    void rejectsNull() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new EarningWindow(null, OCT_31));
+        assertThatIllegalArgumentException().isThrownBy(() -> new EarningWindow(OCT_1, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.contains(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.overlaps(null));
+    }
 }

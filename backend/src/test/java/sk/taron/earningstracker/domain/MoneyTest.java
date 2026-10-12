@@ -68,4 +68,19 @@ class MoneyTest {
         assertThat(eur("10.00").isAtLeast(eur("10"))).isTrue();
         assertThat(eur("9.99").isAtLeast(eur("10.00"))).isFalse();
     }
+
+    @Test
+    void rejectsNull() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new Money(null, EUR));
+        assertThatIllegalArgumentException().isThrownBy(() -> new Money(BigDecimal.ONE, null));
+        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").plus(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").minus(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").minusOrZero(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").isAtLeast(null));
+    }
+
+    @Test
+    void rejectsCurrencyWithoutFractionDigits() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new Money(BigDecimal.TEN, Currency.getInstance("XXX")));
+    }
 }

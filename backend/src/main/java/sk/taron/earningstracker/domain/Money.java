@@ -6,10 +6,15 @@ import java.util.Currency;
 public record Money(BigDecimal amount, Currency currency) {
 
     public Money {
+        Require.nonNull(amount, "amount");
+        Require.nonNull(currency, "currency");
         if (amount.signum() < 0) {
             throw new IllegalArgumentException("Money must not be negative: " + amount);
         }
         int fractionDigits = currency.getDefaultFractionDigits();
+        if (fractionDigits < 0) {
+            throw new IllegalArgumentException("Currency " + currency + " is not a payable currency");
+        }
         if (amount.stripTrailingZeros().scale() > fractionDigits) {
             throw new IllegalArgumentException(
                     "Money " + amount + " has more fraction digits than " + currency + " allows (" + fractionDigits + ")");
@@ -37,7 +42,8 @@ public record Money(BigDecimal amount, Currency currency) {
         return amount.compareTo(other.amount) >= 0;
     }
 
-    private void requireSameCurrency(Money other) {
+    void requireSameCurrency(Money other) {
+        Require.nonNull(other, "other money");
         if (!currency.equals(other.currency)) {
             throw new IllegalArgumentException("Cannot combine " + currency + " with " + other.currency);
         }

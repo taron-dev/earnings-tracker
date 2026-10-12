@@ -18,8 +18,8 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    Návrh podkrokov (upresniť pred začatím). Čistá doména bez Springu, databázy a REST, každý podkrok jeden TDD cyklus:
    - [x] 2.1 Hodnotové typy: suma peňazí (`BigDecimal` + `java.util.Currency`, zatiaľ EUR), hodiny, hodinová sadzba, okno zárabania (od–do)
      - `Money`: ≥ 0, normalizované na desatinné miesta meny, operácie medzi rôznymi menami vyhodia výnimku, `minus` nesmie ísť do mínusu
-     - `Hours`: celé minúty, ≥ 0, bez hornej hranice (aj `WorkLog`)
-     - `HourlyRate`: nad `Money`, > 0, `earningsFor(Hours)` zaokrúhľuje `HALF_UP` na presnosť meny, `hoursToEarn(Money)` zaokrúhľuje nahor na celú minútu
+     - `WorkedTime`: celé minúty, ≥ 0, bez hornej hranice (aj `WorkLog`)
+     - `HourlyRate`: nad `Money`, > 0, `earningsFor(WorkedTime)` zaokrúhľuje `HALF_UP` na presnosť meny, `hoursToEarn(Money)` zaokrúhľuje nahor na celú minútu
      - `EarningWindow`: `LocalDate` od–do vrátane oboch, `from ≤ to`, `contains`, `overlaps`
      - balík `sk.taron.earningstracker.domain` bez Springu, `record`, JUnit 5 a AssertJ
    - [ ] 2.2 Záznam práce a zárobok: hodiny × sadzba platná v čase záznamu, súčet zárobku za okno plánu

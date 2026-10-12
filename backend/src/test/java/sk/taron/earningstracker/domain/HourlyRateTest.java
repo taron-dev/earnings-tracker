@@ -23,23 +23,23 @@ class HourlyRateTest {
 
     @Test
     void earningsAreRateTimesWorkedTime() {
-        assertThat(new HourlyRate(eur("30")).earningsFor(Hours.of(7, 20))).isEqualTo(eur("220.00"));
+        assertThat(new HourlyRate(eur("30")).earningsFor(WorkedTime.of(7, 20))).isEqualTo(eur("220.00"));
     }
 
     @Test
     void earningsAreRoundedHalfUpToCents() {
-        assertThat(new HourlyRate(eur("25")).earningsFor(Hours.of(0, 7))).isEqualTo(eur("2.92"));
-        assertThat(new HourlyRate(eur("0.30")).earningsFor(Hours.of(0, 1))).isEqualTo(eur("0.01"));
+        assertThat(new HourlyRate(eur("25")).earningsFor(WorkedTime.of(0, 7))).isEqualTo(eur("2.92"));
+        assertThat(new HourlyRate(eur("0.30")).earningsFor(WorkedTime.of(0, 1))).isEqualTo(eur("0.01"));
     }
 
     @Test
     void hoursToEarnAreRoundedUpToWholeMinute() {
-        assertThat(new HourlyRate(eur("33")).hoursToEarn(eur("100"))).isEqualTo(new Hours(182));
+        assertThat(new HourlyRate(eur("33")).hoursToEarn(eur("100"))).isEqualTo(new WorkedTime(182));
     }
 
     @Test
     void hoursToEarnAddNoExtraMinuteWhenExact() {
-        assertThat(new HourlyRate(eur("30")).hoursToEarn(eur("60"))).isEqualTo(Hours.of(2, 0));
+        assertThat(new HourlyRate(eur("30")).hoursToEarn(eur("60"))).isEqualTo(WorkedTime.of(2, 0));
     }
 
     @Test
@@ -57,5 +57,14 @@ class HourlyRateTest {
         Money earned = hourlyRate.earningsFor(hourlyRate.hoursToEarn(eur(target)));
 
         assertThat(earned.isAtLeast(eur(target))).isTrue();
+    }
+
+    @Test
+    void rejectsNull() {
+        HourlyRate rate = new HourlyRate(eur("30"));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new HourlyRate(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> rate.earningsFor(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> rate.hoursToEarn(null));
     }
 }
