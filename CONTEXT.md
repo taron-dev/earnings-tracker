@@ -7,11 +7,11 @@ A personal planning tool for a self-employed person (živnostník): money earned
 ### Earning
 
 **Hourly Rate** (Hodinová sadzba):
-The single gross amount the user currently earns per worked hour. The user can change it at any time; the new rate applies only to Work Logs recorded from then on.
+The single gross amount, always positive and in a currency, that the user currently earns per worked hour. The user can change it at any time; the new rate applies only to Work Logs recorded from then on.
 _Avoid_: wage, price, tariff
 
 **Work Log** (Záznam práce):
-A record of hours worked on a given day, carrying the Hourly Rate that was current when it was recorded.
+A record of time worked on a given day, in hours and minutes, carrying the Hourly Rate that was current when it was recorded.
 _Avoid_: timesheet, entry, shift
 
 **Earnings** (Zárobok):
@@ -25,7 +25,7 @@ A set of Budget Items to be funded by Earnings made within its Earning Window. N
 _Avoid_: budget, monthly budget
 
 **Earning Window** (Okno zárabania):
-The date range (from–to) of a Plan; Work Logs dated inside it fund that Plan. Earning Windows of different Plans do not overlap, so every Work Log belongs to at most one Plan. A Work Log dated outside every Earning Window is kept and starts funding a Plan once one is created whose window covers that date.
+The date range (from–to, both days included) of a Plan; Work Logs dated inside it fund that Plan. Earning Windows of different Plans do not overlap, so every Work Log belongs to at most one Plan. A Work Log dated outside every Earning Window is kept and starts funding a Plan once one is created whose window covers that date.
 _Avoid_: period, funding month, sprint
 
 **Budget Item** (Položka plánu):

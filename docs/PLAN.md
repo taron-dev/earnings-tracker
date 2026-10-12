@@ -16,7 +16,12 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 1.9 Nasadenie Flutter webu na GitHub Pages ([postup](./setup/github-pages.md)): verejné repo, GitHub Actions, CORS a Supabase Redirect URL na produkčnú doménu, naživo vidím „Hello, user"
 2. **Doménové jadro** v Springu cez TDD: poradie pokrývania, pokrytie položiek, hranica základu, najbližší cieľ v hodinách, nepriradený zárobok.
    Návrh podkrokov (upresniť pred začatím). Čistá doména bez Springu, databázy a REST, každý podkrok jeden TDD cyklus:
-   - [ ] 2.1 Hodnotové typy: suma peňazí (EUR, `BigDecimal`), hodiny, hodinová sadzba, okno zárabania (od–do)
+   - [x] 2.1 Hodnotové typy: suma peňazí (`BigDecimal` + `java.util.Currency`, zatiaľ EUR), hodiny, hodinová sadzba, okno zárabania (od–do)
+     - `Money`: ≥ 0, normalizované na desatinné miesta meny, operácie medzi rôznymi menami vyhodia výnimku, `minus` nesmie ísť do mínusu
+     - `Hours`: celé minúty, ≥ 0, bez hornej hranice (aj `WorkLog`)
+     - `HourlyRate`: nad `Money`, > 0, `earningsFor(Hours)` zaokrúhľuje `HALF_UP` na presnosť meny, `hoursToEarn(Money)` zaokrúhľuje nahor na celú minútu
+     - `EarningWindow`: `LocalDate` od–do vrátane oboch, `from ≤ to`, `contains`, `overlaps`
+     - balík `sk.taron.earningstracker.domain` bez Springu, `record`, JUnit 5 a AssertJ
    - [ ] 2.2 Záznam práce a zárobok: hodiny × sadzba platná v čase záznamu, súčet zárobku za okno plánu
    - [ ] 2.3 Poradie pokrývania a pokrytie položiek: zárobok napĺňa položky postupne, každú celú pred ďalšou; pokrytá, rozpracovaná, nepokrytá
    - [ ] 2.4 Hranica základu: rozdelenie položiek na základ a extra, či je základ pokrytý
