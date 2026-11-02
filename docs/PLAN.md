@@ -23,7 +23,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - `EarningWindow`: `LocalDate` od–do vrátane oboch, `from ≤ to`, `contains`, `overlaps`
      - balík `sk.taron.earningstracker.domain` bez Springu, `record`, JUnit 5 a AssertJ
    - [x] 2.2 Záznam práce a zárobok: hodiny × sadzba platná v čase záznamu, súčet zárobku za okno plánu
-   - [ ] 2.3 Poradie pokrývania a pokrytie položiek: zárobok napĺňa položky postupne, každú celú pred ďalšou; pokrytá, rozpracovaná, nepokrytá
+   - [x] 2.3 Poradie pokrývania a pokrytie položiek: zárobok napĺňa položky postupne, každú celú pred ďalšou; pokrytá, rozpracovaná, nepokrytá
    - [ ] 2.4 Hranica základu: rozdelenie položiek na základ a extra, či je základ pokrytý
    - [ ] 2.5 Najbližší cieľ: prvá nepokrytá položka, chýbajúce hodiny pri aktuálnej sadzbe (zaokrúhlenie nahor)
    - [ ] 2.6 Nepriradený zárobok: zárobok nad súčet všetkých položiek
