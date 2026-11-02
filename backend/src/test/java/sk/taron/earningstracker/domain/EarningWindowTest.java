@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Currency;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +16,11 @@ class EarningWindowTest {
     static final LocalDate OCT_1 = LocalDate.of(2026, 10, 1);
     static final LocalDate OCT_31 = LocalDate.of(2026, 10, 31);
     static final EarningWindow OCTOBER = new EarningWindow(OCT_1, OCT_31);
+    static final Currency EUR = Currency.getInstance("EUR");
+
+    static Money eur(String amount) {
+        return new Money(new BigDecimal(amount), EUR);
+    }
 
     @Test
     void rejectsWindowEndingBeforeItStarts() {
@@ -59,6 +67,22 @@ class EarningWindowTest {
 
         assertThat(OCTOBER.overlaps(november)).isFalse();
         assertThat(november.overlaps(OCTOBER)).isFalse();
+    }
+
+    @Test
+    void earnsNothingWithoutWorkLogs() {
+        assertThat(OCTOBER.earningsFrom(List.of(), EUR)).isEqualTo(eur("0"));
+    }
+
+    @Test
+    void earnsFromWorkLogsDatedInsideTheWindowEachAtItsOwnRate() {
+        List<WorkLog> workLogs = List.of(
+                new WorkLog(LocalDate.of(2026, 9, 30), WorkedTime.of(8, 0), new HourlyRate(eur("30"))),
+                new WorkLog(OCT_1, WorkedTime.of(3, 0), new HourlyRate(eur("30"))),
+                new WorkLog(OCT_31, WorkedTime.of(2, 30), new HourlyRate(eur("40"))),
+                new WorkLog(LocalDate.of(2026, 11, 1), WorkedTime.of(8, 0), new HourlyRate(eur("40"))));
+
+        assertThat(OCTOBER.earningsFrom(workLogs, EUR)).isEqualTo(eur("190.00"));
     }
 
     @Test
