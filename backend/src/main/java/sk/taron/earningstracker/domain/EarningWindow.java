@@ -21,6 +21,8 @@ public record EarningWindow(LocalDate from, LocalDate to) {
     }
 
     public Money earningsFrom(Collection<WorkLog> workLogs, Currency currency) {
+        Require.nonNull(workLogs, "workLogs");
+        Require.nonNull(currency, "currency");
         return workLogs.stream()
                 .filter(workLog -> contains(workLog.day()))
                 .map(WorkLog::earnings)

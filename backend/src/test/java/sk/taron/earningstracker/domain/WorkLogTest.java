@@ -1,6 +1,7 @@
 package sk.taron.earningstracker.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,5 +22,15 @@ class WorkLogTest {
         WorkLog log = new WorkLog(OCT_15, WorkedTime.of(2, 30), new HourlyRate(eur("40")));
 
         assertThat(log.earnings()).isEqualTo(eur("100.00"));
+    }
+
+    @Test
+    void rejectsNull() {
+        WorkedTime workedTime = WorkedTime.of(1, 0);
+        HourlyRate rate = new HourlyRate(eur("30"));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new WorkLog(null, workedTime, rate));
+        assertThatIllegalArgumentException().isThrownBy(() -> new WorkLog(OCT_15, null, rate));
+        assertThatIllegalArgumentException().isThrownBy(() -> new WorkLog(OCT_15, workedTime, null));
     }
 }

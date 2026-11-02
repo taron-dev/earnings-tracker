@@ -86,10 +86,30 @@ class EarningWindowTest {
     }
 
     @Test
+    void roundsEarningsOfEachWorkLogBeforeSumming() {
+        HourlyRate rate = new HourlyRate(eur("25"));
+        List<WorkLog> workLogs = List.of(
+                new WorkLog(OCT_1, WorkedTime.of(0, 7), rate),
+                new WorkLog(OCT_31, WorkedTime.of(0, 7), rate));
+
+        assertThat(OCTOBER.earningsFrom(workLogs, EUR)).isEqualTo(eur("5.84"));
+    }
+
+    @Test
+    void rejectsWorkLogsEarnedInAnotherCurrency() {
+        Money usd = new Money(new BigDecimal("30"), Currency.getInstance("USD"));
+        List<WorkLog> workLogs = List.of(new WorkLog(OCT_1, WorkedTime.of(1, 0), new HourlyRate(usd)));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.earningsFrom(workLogs, EUR));
+    }
+
+    @Test
     void rejectsNull() {
         assertThatIllegalArgumentException().isThrownBy(() -> new EarningWindow(null, OCT_31));
         assertThatIllegalArgumentException().isThrownBy(() -> new EarningWindow(OCT_1, null));
         assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.contains(null));
         assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.overlaps(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.earningsFrom(null, EUR));
+        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.earningsFrom(List.of(), null));
     }
 }
