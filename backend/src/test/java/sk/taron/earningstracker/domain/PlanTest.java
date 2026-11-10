@@ -177,6 +177,31 @@ class PlanTest {
     }
 
     @Test
+    void hasNoUnassignedEarningsUntilEarningsExceedAllItems() {
+        assertThat(PLAN.unassignedEarnings(eur("0"))).isEqualTo(eur("0"));
+        assertThat(PLAN.unassignedEarnings(eur("150"))).isEqualTo(eur("0"));
+        assertThat(PLAN.unassignedEarnings(eur("350"))).isEqualTo(eur("0"));
+    }
+
+    @Test
+    void unassignedEarningsAreEarningsBeyondAllItems() {
+        assertThat(PLAN.unassignedEarnings(eur("350.01"))).isEqualTo(eur("0.01"));
+        assertThat(PLAN.unassignedEarnings(eur("1000"))).isEqualTo(eur("650"));
+    }
+
+    @Test
+    void anEmptyPlanLeavesAllEarningsUnassigned() {
+        assertThat(new Plan(OCTOBER, List.of(), 0).unassignedEarnings(eur("120.50"))).isEqualTo(eur("120.50"));
+    }
+
+    @Test
+    void unassignedEarningsRejectEarningsInAnotherCurrencyThanItems() {
+        Money czkEarnings = new Money(new BigDecimal("1000"), Currency.getInstance("CZK"));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.unassignedEarnings(czkEarnings));
+    }
+
+    @Test
     @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
         assertThatNullPointerException()
@@ -206,5 +231,8 @@ class PlanTest {
         assertThatNullPointerException()
                 .isThrownBy(() -> PLAN.nextMilestone(eur("0"), null))
                 .withMessage("currentRate must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> PLAN.unassignedEarnings(null))
+                .withMessage("earnings must not be null");
     }
 }

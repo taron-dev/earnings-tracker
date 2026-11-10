@@ -2,6 +2,7 @@ package sk.taron.earningstracker.domain;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,11 +30,20 @@ public record Plan(EarningWindow window, List<BudgetItem> items, int essentialsC
 
     public boolean isEssentialsCoveredBy(Money earnings) {
         Objects.requireNonNull(earnings, "earnings must not be null");
-        Money essentialsTotal = new Money(BigDecimal.ZERO, earnings.currency());
-        for (BudgetItem item : essentials()) {
-            essentialsTotal = essentialsTotal.plus(item.target());
+        return earnings.isAtLeast(total(essentials(), earnings.currency()));
+    }
+
+    public Money unassignedEarnings(Money earnings) {
+        Objects.requireNonNull(earnings, "earnings must not be null");
+        return earnings.minusOrZero(total(items, earnings.currency()));
+    }
+
+    private static Money total(List<BudgetItem> items, Currency currency) {
+        Money total = new Money(BigDecimal.ZERO, currency);
+        for (BudgetItem item : items) {
+            total = total.plus(item.target());
         }
-        return earnings.isAtLeast(essentialsTotal);
+        return total;
     }
 
     public Optional<NextMilestone> nextMilestone(Money earnings, HourlyRate currentRate) {

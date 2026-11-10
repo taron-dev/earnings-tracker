@@ -37,7 +37,12 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - bez príznaku základ/extra (doplniť do `NextMilestone` v kroku 3, ak ho UI bude potrebovať)
      - iná mena sadzby, zárobku či položiek vyhodí `IllegalArgumentException`, kontrola vždy na vstupe
      - test zaokrúhlenia pri nepárnej sadzbe: `earningsFor(timeNeeded) ≥ missing`, o minútu menej už nestačí
-   - [ ] 2.6 Nepriradený zárobok: zárobok nad súčet všetkých položiek
+   - [x] 2.6 Nepriradený zárobok: zárobok nad súčet všetkých položiek
+     - `Plan.unassignedEarnings(Money earnings)` vracia `Money`: zárobok mínus súčet všetkých položiek, najmenej nula (`minusOrZero`)
+     - kým zárobok nepresiahne súčet položiek, vracia nulu v mene zárobku
+     - prázdny plán: celý zárobok je nepriradený
+     - iná mena zárobku a položiek vyhodí `IllegalArgumentException` (pri prázdnom pláne nie je s čím porovnať)
+     - verejný `total()` na `Plan` zatiaľ nie (doplniť, keď ho bude UI potrebovať)
    - [ ] 2.7 Okrajové prípady: prázdny plán, nulový zárobok, zmena sadzby počas okna, záznamy mimo okna
    - [ ] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
