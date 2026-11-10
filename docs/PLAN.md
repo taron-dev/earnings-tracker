@@ -30,7 +30,13 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - `essentials()` a `extras()` vracajú `List<BudgetItem>`; `ItemCoverage` a `coverageFor` sa nemenia
      - `isEssentialsCoveredBy(Money)`: zárobok ≥ súčet súm základu; prázdny základ je vždy pokrytý
      - chýbajúca suma či hodiny do základu zatiaľ nie (doplniť, keď ich bude UI potrebovať)
-   - [ ] 2.5 Najbližší cieľ: prvá nepokrytá položka, chýbajúce hodiny pri aktuálnej sadzbe (zaokrúhlenie nahor)
+   - [x] 2.5 Najbližší cieľ: prvá nepokrytá položka, chýbajúce hodiny pri aktuálnej sadzbe (zaokrúhlenie nahor)
+     - `Plan.nextMilestone(Money earnings, HourlyRate currentRate)` vracia `Optional<NextMilestone>`
+     - `record NextMilestone(BudgetItem item, Money missing, WorkedTime timeNeeded)`: prvá nie pokrytá položka v poradí pokrývania, jej suma mínus pokryté, `currentRate.hoursToEarn(missing)`
+     - prázdny aj plne pokrytý plán vracia `Optional.empty()`, bez rozlišovania
+     - bez príznaku základ/extra (doplniť do `NextMilestone` v kroku 3, ak ho UI bude potrebovať)
+     - iná mena sadzby, zárobku či položiek vyhodí `IllegalArgumentException`, kontrola vždy na vstupe
+     - test zaokrúhlenia pri nepárnej sadzbe: `earningsFor(timeNeeded) ≥ missing`, o minútu menej už nestačí
    - [ ] 2.6 Nepriradený zárobok: zárobok nad súčet všetkých položiek
    - [ ] 2.7 Okrajové prípady: prázdny plán, nulový zárobok, zmena sadzby počas okna, záznamy mimo okna
    - [ ] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3

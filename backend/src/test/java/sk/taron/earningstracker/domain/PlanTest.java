@@ -117,6 +117,65 @@ class PlanTest {
         assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(), 1));
     }
 
+    static final HourlyRate RATE = new HourlyRate(eur("40"));
+
+    @Test
+    void nextMilestoneIsTheFirstItemWhenNothingIsEarned() {
+        assertThat(PLAN.nextMilestone(eur("0"), RATE))
+                .contains(new NextMilestone(TAXES, eur("100"), WorkedTime.of(2, 30)));
+    }
+
+    @Test
+    void nextMilestoneIsTheItemInProgressWithOnlyItsRemainderMissing() {
+        assertThat(PLAN.nextMilestone(eur("150"), RATE))
+                .contains(new NextMilestone(MORTGAGE, eur("150"), WorkedTime.of(3, 45)));
+    }
+
+    @Test
+    void nextMilestoneSkipsAnItemCoveredExactly() {
+        assertThat(PLAN.nextMilestone(eur("300"), RATE))
+                .contains(new NextMilestone(VACATION, eur("50"), WorkedTime.of(1, 15)));
+    }
+
+    @Test
+    void thereIsNoNextMilestoneOnceEveryItemIsCovered() {
+        assertThat(PLAN.nextMilestone(eur("350"), RATE)).isEmpty();
+        assertThat(PLAN.nextMilestone(eur("1000"), RATE)).isEmpty();
+    }
+
+    @Test
+    void anEmptyPlanHasNoNextMilestone() {
+        assertThat(new Plan(OCTOBER, List.of(), 0).nextMilestone(eur("0"), RATE)).isEmpty();
+    }
+
+    @Test
+    void nextMilestoneTimeAlwaysEarnsTheMissingAmountAndOneMinuteLessDoesNot() {
+        HourlyRate oddRate = new HourlyRate(eur("37"));
+        Plan plan = new Plan(OCTOBER, List.of(new BudgetItem("Odvody", eur("10.01"))), 1);
+
+        NextMilestone milestone = plan.nextMilestone(eur("0"), oddRate).orElseThrow();
+
+        assertThat(milestone.timeNeeded()).isEqualTo(new WorkedTime(17));
+        assertThat(oddRate.earningsFor(milestone.timeNeeded()).isAtLeast(milestone.missing())).isTrue();
+        assertThat(oddRate.earningsFor(new WorkedTime(16)).isAtLeast(milestone.missing())).isFalse();
+    }
+
+    @Test
+    void nextMilestoneRejectsRateInAnotherCurrencyEvenWhenEverythingIsCovered() {
+        HourlyRate czkRate = new HourlyRate(new Money(new BigDecimal("1000"), Currency.getInstance("CZK")));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.nextMilestone(eur("0"), czkRate));
+        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.nextMilestone(eur("1000"), czkRate));
+    }
+
+    @Test
+    void nextMilestoneRejectsEarningsInAnotherCurrencyThanItems() {
+        Money czkEarnings = new Money(new BigDecimal("0"), Currency.getInstance("CZK"));
+        HourlyRate czkRate = new HourlyRate(new Money(new BigDecimal("1000"), Currency.getInstance("CZK")));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.nextMilestone(czkEarnings, czkRate));
+    }
+
     @Test
     @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
@@ -141,5 +200,11 @@ class PlanTest {
         assertThatNullPointerException()
                 .isThrownBy(() -> PLAN.isEssentialsCoveredBy(null))
                 .withMessage("earnings must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> PLAN.nextMilestone(null, RATE))
+                .withMessage("earnings must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> PLAN.nextMilestone(eur("0"), null))
+                .withMessage("currentRate must not be null");
     }
 }
