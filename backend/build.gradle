@@ -1,5 +1,6 @@
 plugins {
 	id 'java'
+	id 'jacoco'
 	id 'org.springframework.boot' version '4.1.1'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -38,4 +39,16 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy tasks.named('jacocoTestReport')
+	def testReport = reports.html.entryPoint
+	doLast {
+		println "Test report: ${testReport.toPath().toUri()}"
+	}
+}
+
+tasks.named('jacocoTestReport') {
+	def coverageReport = reports.html.entryPoint
+	doLast {
+		println "Coverage report: ${coverageReport.toPath().toUri()}"
+	}
 }
