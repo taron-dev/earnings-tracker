@@ -18,7 +18,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    Návrh podkrokov (upresniť pred začatím). Čistá doména bez Springu, databázy a REST, každý podkrok jeden TDD cyklus:
    - [x] 2.1 Hodnotové typy: suma peňazí (`BigDecimal` + `java.util.Currency`, zatiaľ EUR), hodiny, hodinová sadzba, okno zárabania (od–do)
      - `Money`: ≥ 0, normalizované na desatinné miesta meny, operácie medzi rôznymi menami vyhodia výnimku, `minus` nesmie ísť do mínusu
-     - `WorkedTime`: celé minúty, ≥ 0, bez hornej hranice (aj `WorkLog`)
+     - `WorkedTime`: celé minúty, ≥ 0, bez hornej hranice (`WorkLog` od 2.7 > 0)
      - `HourlyRate`: nad `Money`, > 0, `earningsFor(WorkedTime)` zaokrúhľuje `HALF_UP` na presnosť meny, `hoursToEarn(Money)` zaokrúhľuje nahor na celú minútu
      - `EarningWindow`: `LocalDate` od–do vrátane oboch, `from ≤ to`, `contains`, `overlaps`
      - balík `sk.taron.earningstracker.domain` bez Springu, `record`, JUnit 5 a AssertJ
@@ -43,8 +43,12 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - prázdny plán: celý zárobok je nepriradený
      - iná mena zárobku a položiek vyhodí `IllegalArgumentException` (pri prázdnom pláne nie je s čím porovnať)
      - verejný `total()` na `Plan` zatiaľ nie (doplniť, keď ho bude UI potrebovať)
-   - [ ] 2.7 Okrajové prípady: prázdny plán, nulový zárobok, zmena sadzby počas okna, záznamy mimo okna
+   - [x] 2.7 Okrajové prípady: prázdny plán, nulový zárobok, zmena sadzby počas okna, záznamy mimo okna
+     - pôvodné štyri prípady už pokryté testami, doplniť len `coverageFor` na prázdnom pláne (prázdny zoznam)
+     - `Plan` bez vlastnej meny; konštruktor odmietne položky v rôznych menách (`IllegalArgumentException`)
+     - `WorkLog` musí mať > 0 minút, inak `IllegalArgumentException`; `WorkedTime` ostáva ≥ 0
    - [ ] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3
+     - okná plánov jedného používateľa sa neprekrývajú: kontrola v aplikačnej službe cez `EarningWindow.overlaps` (pri úprave bez samotného plánu), v databáze exclusion constraint na `daterange` per používateľ (detaily pri 2.8)
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.

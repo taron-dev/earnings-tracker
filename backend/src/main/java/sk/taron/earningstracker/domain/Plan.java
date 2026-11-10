@@ -14,6 +14,9 @@ public record Plan(EarningWindow window, List<BudgetItem> items, int essentialsC
         Objects.requireNonNull(items, "items must not be null");
         items.forEach(item -> Objects.requireNonNull(item, "budget item must not be null"));
         items = List.copyOf(items);
+        if (items.stream().map(item -> item.target().currency()).distinct().count() > 1) {
+            throw new IllegalArgumentException("Budget items of a plan must share one currency");
+        }
         if (essentialsCount < 0 || essentialsCount > items.size()) {
             throw new IllegalArgumentException(
                     "Essentials count must be between 0 and " + items.size() + ": " + essentialsCount);

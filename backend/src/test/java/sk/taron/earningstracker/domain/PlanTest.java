@@ -56,6 +56,18 @@ class PlanTest {
     }
 
     @Test
+    void anEmptyPlanHasNoCoverage() {
+        assertThat(new Plan(OCTOBER, List.of(), 0).coverageFor(eur("100"))).isEmpty();
+    }
+
+    @Test
+    void rejectsItemsInDifferentCurrencies() {
+        BudgetItem czkItem = new BudgetItem("Nájom", new Money(new BigDecimal("5000"), Currency.getInstance("CZK")));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(TAXES, czkItem), 1));
+    }
+
+    @Test
     void isNotChangedByLaterChangesToTheListItWasCreatedFrom() {
         List<BudgetItem> items = new ArrayList<>(List.of(TAXES));
         Plan plan = new Plan(OCTOBER, items, 1);
