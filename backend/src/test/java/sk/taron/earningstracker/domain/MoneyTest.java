@@ -2,6 +2,7 @@ package sk.taron.earningstracker.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.math.BigDecimal;
 import java.util.Currency;
@@ -70,13 +71,26 @@ class MoneyTest {
     }
 
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Money(null, EUR));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Money(BigDecimal.ONE, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").plus(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").minus(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").minusOrZero(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> eur("1.00").isAtLeast(null));
+        assertThatNullPointerException()
+                .isThrownBy(() -> new Money(null, EUR))
+                .withMessage("amount must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new Money(BigDecimal.ONE, null))
+                .withMessage("currency must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> eur("1.00").plus(null))
+                .withMessage("other money must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> eur("1.00").minus(null))
+                .withMessage("other money must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> eur("1.00").minusOrZero(null))
+                .withMessage("other money must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> eur("1.00").isAtLeast(null))
+                .withMessage("other money must not be null");
     }
 
     @Test

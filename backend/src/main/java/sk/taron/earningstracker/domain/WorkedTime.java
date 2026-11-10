@@ -1,5 +1,7 @@
 package sk.taron.earningstracker.domain;
 
+import java.util.Objects;
+
 public record WorkedTime(long minutes) {
 
     public WorkedTime {
@@ -16,7 +18,7 @@ public record WorkedTime(long minutes) {
     }
 
     public WorkedTime plus(WorkedTime other) {
-        Require.nonNull(other, "other worked time");
+        Objects.requireNonNull(other, "other worked time must not be null");
         return new WorkedTime(Math.addExact(minutes, other.minutes));
     }
 }

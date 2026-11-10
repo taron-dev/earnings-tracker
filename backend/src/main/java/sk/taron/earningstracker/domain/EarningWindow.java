@@ -4,25 +4,26 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.Objects;
 
 public record EarningWindow(LocalDate from, LocalDate to) {
 
     public EarningWindow {
-        Require.nonNull(from, "from");
-        Require.nonNull(to, "to");
+        Objects.requireNonNull(from, "from must not be null");
+        Objects.requireNonNull(to, "to must not be null");
         if (from.isAfter(to)) {
             throw new IllegalArgumentException("Earning window must not end before it starts: " + from + " – " + to);
         }
     }
 
     public boolean contains(LocalDate date) {
-        Require.nonNull(date, "date");
+        Objects.requireNonNull(date, "date must not be null");
         return !date.isBefore(from) && !date.isAfter(to);
     }
 
     public Money earningsFrom(Collection<WorkLog> workLogs, Currency currency) {
-        Require.nonNull(workLogs, "workLogs");
-        Require.nonNull(currency, "currency");
+        Objects.requireNonNull(workLogs, "workLogs must not be null");
+        Objects.requireNonNull(currency, "currency must not be null");
         return workLogs.stream()
                 .filter(workLog -> contains(workLog.day()))
                 .map(WorkLog::earnings)
@@ -30,7 +31,7 @@ public record EarningWindow(LocalDate from, LocalDate to) {
     }
 
     public boolean overlaps(EarningWindow other) {
-        Require.nonNull(other, "other window");
+        Objects.requireNonNull(other, "other window must not be null");
         return !from.isAfter(other.to) && !other.from.isAfter(to);
     }
 }

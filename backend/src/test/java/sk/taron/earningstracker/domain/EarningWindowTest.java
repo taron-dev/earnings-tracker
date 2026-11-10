@@ -3,6 +3,7 @@ package sk.taron.earningstracker.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -104,12 +105,25 @@ class EarningWindowTest {
     }
 
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new EarningWindow(null, OCT_31));
-        assertThatIllegalArgumentException().isThrownBy(() -> new EarningWindow(OCT_1, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.contains(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.overlaps(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.earningsFrom(null, EUR));
-        assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.earningsFrom(List.of(), null));
+        assertThatNullPointerException()
+                .isThrownBy(() -> new EarningWindow(null, OCT_31))
+                .withMessage("from must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new EarningWindow(OCT_1, null))
+                .withMessage("to must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> OCTOBER.contains(null))
+                .withMessage("date must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> OCTOBER.overlaps(null))
+                .withMessage("other window must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> OCTOBER.earningsFrom(null, EUR))
+                .withMessage("workLogs must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> OCTOBER.earningsFrom(List.of(), null))
+                .withMessage("currency must not be null");
     }
 }

@@ -2,12 +2,13 @@ package sk.taron.earningstracker.domain;
 
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.Objects;
 
 public record Money(BigDecimal amount, Currency currency) {
 
     public Money {
-        Require.nonNull(amount, "amount");
-        Require.nonNull(currency, "currency");
+        Objects.requireNonNull(amount, "amount must not be null");
+        Objects.requireNonNull(currency, "currency must not be null");
         if (amount.signum() < 0) {
             throw new IllegalArgumentException("Money must not be negative: " + amount);
         }
@@ -43,7 +44,7 @@ public record Money(BigDecimal amount, Currency currency) {
     }
 
     void requireSameCurrency(Money other) {
-        Require.nonNull(other, "other money");
+        Objects.requireNonNull(other, "other money must not be null");
         if (!currency.equals(other.currency)) {
             throw new IllegalArgumentException("Cannot combine " + currency + " with " + other.currency);
         }

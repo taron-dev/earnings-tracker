@@ -1,0 +1,3 @@
+# Null checks in the domain via JSpecify and Objects.requireNonNull
+
+The domain package is `@NullMarked` (JSpecify), which documents the non-null contract and lets the IDE catch misuse. JSpecify is not enforced at runtime, and Jakarta Bean Validation only runs at the boundaries (`@Valid` on DTOs, JPA). Domain records are also built from tests, other domain code, and entity mapping, so every public constructor and method checks its arguments with `Objects.requireNonNull` and a message. A null argument throws `NullPointerException` (a bug in our code), and a broken domain rule throws `IllegalArgumentException`. Tests assert the message, since an NPE would happen anyway without the explicit check. Compile-time enforcement with NullAway is left for a later decision.

@@ -1,10 +1,12 @@
 package sk.taron.earningstracker.domain;
 
+import java.util.Objects;
+
 public record BudgetItem(String name, Money target) {
 
     public BudgetItem {
-        Require.nonNull(name, "name");
-        Require.nonNull(target, "target");
+        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(target, "target must not be null");
         if (name.isBlank()) {
             throw new IllegalArgumentException("Budget item name must not be blank");
         }

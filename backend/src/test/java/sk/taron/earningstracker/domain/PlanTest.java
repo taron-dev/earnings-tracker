@@ -2,6 +2,7 @@ package sk.taron.earningstracker.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -117,13 +118,28 @@ class PlanTest {
     }
 
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new BudgetItem(null, eur("100")));
-        assertThatIllegalArgumentException().isThrownBy(() -> new BudgetItem("Odvody", null));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(null, List.of(TAXES), 1));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, null, 0));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, Arrays.asList(TAXES, null), 1));
-        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.coverageFor(null));
-        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.isEssentialsCoveredBy(null));
+        assertThatNullPointerException()
+                .isThrownBy(() -> new BudgetItem(null, eur("100")))
+                .withMessage("name must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new BudgetItem("Odvody", null))
+                .withMessage("target must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new Plan(null, List.of(TAXES), 1))
+                .withMessage("window must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new Plan(OCTOBER, null, 0))
+                .withMessage("items must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new Plan(OCTOBER, Arrays.asList(TAXES, null), 1))
+                .withMessage("budget item must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> PLAN.coverageFor(null))
+                .withMessage("earnings must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> PLAN.isEssentialsCoveredBy(null))
+                .withMessage("earnings must not be null");
     }
 }

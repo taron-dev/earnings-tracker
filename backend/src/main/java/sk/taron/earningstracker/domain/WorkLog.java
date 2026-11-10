@@ -1,13 +1,14 @@
 package sk.taron.earningstracker.domain;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public record WorkLog(LocalDate day, WorkedTime workedTime, HourlyRate hourlyRate) {
 
     public WorkLog {
-        Require.nonNull(day, "day");
-        Require.nonNull(workedTime, "workedTime");
-        Require.nonNull(hourlyRate, "hourlyRate");
+        Objects.requireNonNull(day, "day must not be null");
+        Objects.requireNonNull(workedTime, "workedTime must not be null");
+        Objects.requireNonNull(hourlyRate, "hourlyRate must not be null");
     }
 
     public Money earnings() {

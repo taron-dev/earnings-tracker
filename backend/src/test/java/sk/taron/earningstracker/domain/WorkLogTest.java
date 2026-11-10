@@ -1,7 +1,7 @@
 package sk.taron.earningstracker.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,12 +25,19 @@ class WorkLogTest {
     }
 
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
         WorkedTime workedTime = WorkedTime.of(1, 0);
         HourlyRate rate = new HourlyRate(eur("30"));
 
-        assertThatIllegalArgumentException().isThrownBy(() -> new WorkLog(null, workedTime, rate));
-        assertThatIllegalArgumentException().isThrownBy(() -> new WorkLog(OCT_15, null, rate));
-        assertThatIllegalArgumentException().isThrownBy(() -> new WorkLog(OCT_15, workedTime, null));
+        assertThatNullPointerException()
+                .isThrownBy(() -> new WorkLog(null, workedTime, rate))
+                .withMessage("day must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new WorkLog(OCT_15, null, rate))
+                .withMessage("workedTime must not be null");
+        assertThatNullPointerException()
+                .isThrownBy(() -> new WorkLog(OCT_15, workedTime, null))
+                .withMessage("hourlyRate must not be null");
     }
 }

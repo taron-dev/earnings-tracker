@@ -2,20 +2,21 @@ package sk.taron.earningstracker.domain;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 public record HourlyRate(Money perHour) {
 
     private static final BigDecimal MINUTES_PER_HOUR = BigDecimal.valueOf(60);
 
     public HourlyRate {
-        Require.nonNull(perHour, "perHour");
+        Objects.requireNonNull(perHour, "perHour must not be null");
         if (perHour.amount().signum() == 0) {
             throw new IllegalArgumentException("Hourly rate must be positive");
         }
     }
 
     public Money earningsFor(WorkedTime workedTime) {
-        Require.nonNull(workedTime, "workedTime");
+        Objects.requireNonNull(workedTime, "workedTime must not be null");
         BigDecimal earned = perHour.amount()
                 .multiply(BigDecimal.valueOf(workedTime.minutes()))
                 .divide(MINUTES_PER_HOUR, perHour.currency().getDefaultFractionDigits(), RoundingMode.HALF_UP);

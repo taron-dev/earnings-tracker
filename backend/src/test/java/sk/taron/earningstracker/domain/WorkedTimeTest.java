@@ -3,6 +3,7 @@ package sk.taron.earningstracker.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +38,10 @@ class WorkedTimeTest {
     }
 
     @Test
+    @SuppressWarnings("DataFlowIssue")
     void rejectsNull() {
-        assertThatIllegalArgumentException().isThrownBy(() -> WorkedTime.of(1, 0).plus(null));
+        assertThatNullPointerException()
+                .isThrownBy(() -> WorkedTime.of(1, 0).plus(null))
+                .withMessage("other worked time must not be null");
     }
 }
