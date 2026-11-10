@@ -23,7 +23,7 @@ class PlanTest {
     static final BudgetItem TAXES = new BudgetItem("Odvody", eur("100"));
     static final BudgetItem MORTGAGE = new BudgetItem("Hypotéka", eur("200"));
     static final BudgetItem VACATION = new BudgetItem("Dovolenka", eur("50"));
-    static final Plan PLAN = new Plan(OCTOBER, List.of(TAXES, MORTGAGE, VACATION));
+    static final Plan PLAN = new Plan(OCTOBER, List.of(TAXES, MORTGAGE, VACATION), 2);
 
     @Test
     void leavesEveryItemUncoveredWithoutEarnings() {
@@ -57,7 +57,7 @@ class PlanTest {
     @Test
     void isNotChangedByLaterChangesToTheListItWasCreatedFrom() {
         List<BudgetItem> items = new ArrayList<>(List.of(TAXES));
-        Plan plan = new Plan(OCTOBER, items);
+        Plan plan = new Plan(OCTOBER, items, 1);
 
         items.add(MORTGAGE);
 
@@ -73,12 +73,57 @@ class PlanTest {
     }
 
     @Test
+    void acceptsEssentialsLineFromTopToBottomOfTheFundingOrder() {
+        assertThat(new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 0).essentialsCount()).isZero();
+        assertThat(new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 2).essentialsCount()).isEqualTo(2);
+        assertThat(new Plan(OCTOBER, List.of(), 0).essentialsCount()).isZero();
+    }
+
+    @Test
+    void splitsItemsAtTheEssentialsLine() {
+        assertThat(PLAN.essentials()).containsExactly(TAXES, MORTGAGE);
+        assertThat(PLAN.extras()).containsExactly(VACATION);
+    }
+
+    @Test
+    void hasOnlyExtrasWhenTheLineIsAtTheTopAndOnlyEssentialsWhenAtTheBottom() {
+        Plan allExtras = new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 0);
+        Plan allEssentials = new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 2);
+
+        assertThat(allExtras.essentials()).isEmpty();
+        assertThat(allExtras.extras()).containsExactly(TAXES, MORTGAGE);
+        assertThat(allEssentials.essentials()).containsExactly(TAXES, MORTGAGE);
+        assertThat(allEssentials.extras()).isEmpty();
+    }
+
+    @Test
+    void essentialsAreCoveredOnceEarningsReachTheirTotal() {
+        assertThat(PLAN.isEssentialsCoveredBy(eur("299.99"))).isFalse();
+        assertThat(PLAN.isEssentialsCoveredBy(eur("300"))).isTrue();
+    }
+
+    @Test
+    void noEssentialsAreAlwaysCovered() {
+        Plan allExtras = new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 0);
+
+        assertThat(allExtras.isEssentialsCoveredBy(eur("0"))).isTrue();
+    }
+
+    @Test
+    void rejectsEssentialsLineOutsideTheFundingOrder() {
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(TAXES, MORTGAGE), -1));
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 3));
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(), 1));
+    }
+
+    @Test
     void rejectsNull() {
         assertThatIllegalArgumentException().isThrownBy(() -> new BudgetItem(null, eur("100")));
         assertThatIllegalArgumentException().isThrownBy(() -> new BudgetItem("Odvody", null));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(null, List.of(TAXES)));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, null));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, Arrays.asList(TAXES, null)));
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(null, List.of(TAXES), 1));
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, null, 0));
+        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, Arrays.asList(TAXES, null), 1));
         assertThatIllegalArgumentException().isThrownBy(() -> PLAN.coverageFor(null));
+        assertThatIllegalArgumentException().isThrownBy(() -> PLAN.isEssentialsCoveredBy(null));
     }
 }

@@ -24,7 +24,12 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - balík `sk.taron.earningstracker.domain` bez Springu, `record`, JUnit 5 a AssertJ
    - [x] 2.2 Záznam práce a zárobok: hodiny × sadzba platná v čase záznamu, súčet zárobku za okno plánu
    - [x] 2.3 Poradie pokrývania a pokrytie položiek: zárobok napĺňa položky postupne, každú celú pred ďalšou; pokrytá, rozpracovaná, nepokrytá
-   - [ ] 2.4 Hranica základu: rozdelenie položiek na základ a extra, či je základ pokrytý
+   - [x] 2.4 Hranica základu: rozdelenie položiek na základ a extra, či je základ pokrytý
+     - `Plan` drží `int essentialsCount`: prvých N položiek v poradí pokrývania je základ, zvyšok extra; povinný parameter konštruktora bez predvolenej hodnoty
+     - `0 ≤ essentialsCount ≤ items.size()`, inak `IllegalArgumentException`
+     - `essentials()` a `extras()` vracajú `List<BudgetItem>`; `ItemCoverage` a `coverageFor` sa nemenia
+     - `isEssentialsCoveredBy(Money)`: zárobok ≥ súčet súm základu; prázdny základ je vždy pokrytý
+     - chýbajúca suma či hodiny do základu zatiaľ nie (doplniť, keď ich bude UI potrebovať)
    - [ ] 2.5 Najbližší cieľ: prvá nepokrytá položka, chýbajúce hodiny pri aktuálnej sadzbe (zaokrúhlenie nahor)
    - [ ] 2.6 Nepriradený zárobok: zárobok nad súčet všetkých položiek
    - [ ] 2.7 Okrajové prípady: prázdny plán, nulový zárobok, zmena sadzby počas okna, záznamy mimo okna
