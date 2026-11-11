@@ -48,7 +48,40 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - `Plan` bez vlastnej meny; konštruktor odmietne položky v rôznych menách (`IllegalArgumentException`)
      - `WorkLog` musí mať > 0 minút, inak `IllegalArgumentException`; `WorkedTime` ostáva ≥ 0
    - [ ] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3
-     - okná plánov jedného používateľa sa neprekrývajú: kontrola v aplikačnej službe cez `EarningWindow.overlaps` (pri úprave bez samotného plánu), v databáze exclusion constraint na `daterange` per používateľ (detaily pri 2.8)
+     Spoločné pre všetky rezy ([ADR 0004](./adr/0004-persistence-and-api-conventions.md)). Každý rez obsahuje Liquibase, perzistenciu, REST, testy a vlastný commit:
+     - JPA entity v samostatnom balíku, bez MapStruct; `EntityMapper<D, E>` (`toDomain(E)`, `from(D, UUID userId)`), implementácie `XyzEntityMapper` ako `@Component`
+     - `UUID id` v `WorkLog` a `Plan` (UUIDv4 z aplikácie), nový objekt cez `create(...)`, kanonický konštruktor s id pre mapovač a testy; `BudgetItem` a `HourlyRate` bez id
+     - `user_id` iba v DB (`uuid`, z `UUID.fromString(jwt.getSubject())`), do domény nejde
+     - testy bez DB a bez nových závislostí: kontroléry s mockovanými službami, unit testy služieb a mapovačov; schému overí štart proti Supabase (`ddl-auto: validate`)
+     - okná plánov jedného používateľa sa neprekrývajú: kontrola iba v aplikačnej službe cez `EarningWindow.overlaps` (pri úprave bez samotného plánu); v DB iba `NOT NULL`, bez exclusion constraintu a bez `CHECK` (zvážiť pred betou)
+     - JSON: peniaze `{"amount": "123.45", "currency": "EUR"}` (suma ako reťazec), čas v celých minútach
+     - sumy v DB `numeric(12,2)` + `currency char(3)`; API prijíma iba EUR (iná mena 400); na DTO `@Digits(integer = 10, fraction = 2)` pre všetky sumy
+     - chyby ako `ProblemDetail` z jedného `@RestControllerAdvice`: `IllegalArgumentException` a Bean Validation 400, `NotFoundException` 404 (aj cudzí záznam), `OverlappingPlanException` 409, `HourlyRateNotSetException` 409 (typ `hourly-rate-not-set`)
+     - zápis: `POST` 201 + `Location` + telo, `PUT` 200 + telo, `DELETE` 204, neexistujúci 404
+     - [ ] 2.8.1 Hodinová sadzba: `GET` / `PUT /api/hourly-rate`
+       - tabuľka `hourly_rate(user_id uuid PK, amount, currency, updated_at)`, iba aktuálna sadzba, bez histórie
+       - `PUT` robí upsert, telo aj odpoveď `{"perHour": {...}}`, 200
+       - `GET` 200, alebo 404, keď sadzba nie je nastavená
+     - [ ] 2.8.2 Záznamy práce: `POST/GET/PUT/DELETE /api/work-logs`
+       - tabuľka `work_log(id, user_id, day, minutes, rate_amount, rate_currency, created_at, updated_at)`, index (`user_id`, `day`)
+       - `POST {"day", "minutes"}`: sadzbu doplní server z aktuálnej, bez sadzby 409
+       - `PUT /{id}` mení iba deň a minúty, sadzba ostáva pôvodná
+       - viac záznamov v jeden deň je povolených
+       - 1 až 1440 minút: pravidlo v `WorkLog` aj `@Max(1440)` na DTO
+       - `GET ?from&to`: povinné, oba dni vrátane, `from > to` 400, bez stránkovania, zoradené podľa `day` zostupne
+       - položka odpovede `{"id", "day", "minutes", "hourlyRate", "earnings"}`; `GET /{id}` 200 alebo 404
+     - [ ] 2.8.3 Vytvorenie plánu: `POST /api/plans`, `GET /api/plans/{id}`
+       - tabuľka `plan(id, user_id, window_from, window_to, essentials_count, created_at, updated_at)`, index (`user_id`, `window_from`)
+       - tabuľka `budget_item(plan_id FK ON DELETE CASCADE, position, name, target_amount, target_currency)`, PK (`plan_id`, `position`); JPA `@ElementCollection` + `@Embeddable` + `@OrderColumn`
+       - `POST {"window": {"from", "to"}, "items": [{"name", "target"}], "essentialsCount"}`, prázdny zoznam položiek povolený
+       - prekrytie okien 409
+       - `GET /{id}` v rovnakom tvare ako telo `POST` (cieľ `Location`), cudzí plán 404
+     - [ ] 2.8.4 Prehľad plánu: `GET /api/plans/current/overview?date=YYYY-MM-DD`
+       - dátum je povinný a posiela ho klient (lokálny deň používateľa), server nepozná časové pásmo
+       - žiadny plán neobsahuje dátum 404, sadzba nie je nastavená 409 `hourly-rate-not-set`
+       - odpoveď: `planId`, `window`, `earnings`, `essentialsCovered`, `items[]` (`position`, `name`, `target`, `funded`, `state`, `essential`), `nextMilestone` (`position`, `missing`, `minutesNeeded`, alebo `null`), `unassignedEarnings`
+       - záznamy práce v odpovedi nie sú (klient ich načíta cez `GET /api/work-logs` s oknom plánu)
+       - prázdny plán: mena EUR
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.

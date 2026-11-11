@@ -11,7 +11,7 @@ The single gross amount, always positive and in a currency, that the user curren
 _Avoid_: wage, price, tariff
 
 **Work Log** (Záznam práce):
-A record of time worked on a given day, in hours and minutes, carrying the Hourly Rate that was current when it was recorded.
+A record of time worked on a given day, in hours and minutes, carrying the Hourly Rate that was current when it was recorded. A Work Log covers at least one minute and at most 24 hours; a day may have several Work Logs. Editing a Work Log changes its day or time but keeps its Hourly Rate.
 _Avoid_: timesheet, entry, shift
 
 **Earnings** (Zárobok):
