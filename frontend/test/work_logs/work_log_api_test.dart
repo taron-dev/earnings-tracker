@@ -30,4 +30,17 @@ void main() {
     expect(first.hourlyRate.perHour.toJson(), eurJson('40.00'));
     expect(first.earnings.toJson(), eurJson('260.00'));
   });
+
+  test('records work on a day', () async {
+    final adapter = FakeHttpAdapter((_) => (status: 201, body: workLogJson('n1', '2026-11-12', 390, '260.00')));
+
+    final log = await WorkLogApi(fakeDio(adapter)).record(DateTime(2026, 11, 12), 390);
+
+    final request = adapter.requests.single;
+    expect(request.method, 'POST');
+    expect(request.path, '/api/work-logs');
+    expect(request.data, {'day': '2026-11-12', 'minutes': 390});
+    expect(log.id, 'n1');
+    expect(log.earnings.toJson(), eurJson('260.00'));
+  });
 }

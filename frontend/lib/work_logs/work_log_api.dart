@@ -22,6 +22,15 @@ class WorkLogApi {
     );
     return [for (final log in response.data!) WorkLog.fromJson(log as Map<String, dynamic>)];
   }
+
+  /// Records [minutes] of work on [day]; the server attaches the current Hourly Rate.
+  Future<WorkLog> record(DateTime day, int minutes) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/work-logs',
+      data: {'day': isoDate(day), 'minutes': minutes},
+    );
+    return WorkLog.fromJson(response.data!);
+  }
 }
 
 final workLogApiProvider = Provider((ref) => WorkLogApi(ref.watch(apiClientProvider)));
