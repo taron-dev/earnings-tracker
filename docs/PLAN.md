@@ -47,7 +47,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - pôvodné štyri prípady už pokryté testami, doplniť len `coverageFor` na prázdnom pláne (prázdny zoznam)
      - `Plan` bez vlastnej meny; konštruktor odmietne položky v rôznych menách (`IllegalArgumentException`)
      - `WorkLog` musí mať > 0 minút, inak `IllegalArgumentException`; `WorkedTime` ostáva ≥ 0
-   - [ ] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3
+   - [x] 2.8 Perzistencia (Liquibase tabuľky, JPA) a REST API pre krok 3
      Spoločné pre všetky rezy ([ADR 0004](./adr/0004-persistence-and-api-conventions.md)). Každý rez obsahuje Liquibase, perzistenciu, REST, testy a vlastný commit:
      - JPA entity v samostatnom balíku, bez MapStruct; `EntityMapper<D, E>` (`toDomain(E)`, `from(D, UUID userId)`), implementácie `XyzEntityMapper` ako `@Component`
      - `UUID id` v `WorkLog` a `Plan` (UUIDv4 z aplikácie), nový objekt cez `create(...)`, kanonický konštruktor s id pre mapovač a testy; `BudgetItem` a `HourlyRate` bez id
@@ -76,7 +76,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
        - `POST {"window": {"from", "to"}, "items": [{"name", "target"}], "essentialsCount"}`, prázdny zoznam položiek povolený
        - prekrytie okien 409
        - `GET /{id}` v rovnakom tvare ako telo `POST` (cieľ `Location`), cudzí plán 404
-     - [ ] 2.8.4 Prehľad plánu: `GET /api/plans/current/overview?date=YYYY-MM-DD`
+     - [x] 2.8.4 Prehľad plánu: `GET /api/plans/current/overview?date=YYYY-MM-DD`
        - dátum je povinný a posiela ho klient (lokálny deň používateľa), server nepozná časové pásmo
        - žiadny plán neobsahuje dátum 404, sadzba nie je nastavená 409 `hourly-rate-not-set`
        - odpoveď: `planId`, `window`, `earnings`, `essentialsCovered`, `items[]` (`position`, `name`, `target`, `funded`, `state`, `essential`), `nextMilestone` (`position`, `missing`, `minutesNeeded`, alebo `null`), `unassignedEarnings`
