@@ -47,6 +47,20 @@ class HourlyRateServiceTest {
     }
 
     @Test
+    void findingRateIsEmptyBeforeUserSetsOne() {
+        given(repository.findById(USER_ID)).willReturn(Optional.empty());
+
+        assertThat(service.find(USER_ID)).isEmpty();
+    }
+
+    @Test
+    void findingRateReturnsTheStoredOne() {
+        given(repository.findById(USER_ID)).willReturn(Optional.of(mapper.from(eurPerHour("25"), USER_ID)));
+
+        assertThat(service.find(USER_ID)).contains(eurPerHour("25"));
+    }
+
+    @Test
     void settingRateStoresItForUser() {
         given(repository.save(any(HourlyRateEntity.class))).willAnswer(invocation -> invocation.getArgument(0));
 

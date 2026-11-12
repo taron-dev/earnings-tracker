@@ -1,5 +1,7 @@
 package sk.taron.earningstracker.api;
 
+import java.net.URI;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +19,14 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     ProblemDetail invalidInput(IllegalArgumentException exception) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
+    /** The client can tell this conflict apart by its type and send the user to set a rate. */
+    @ExceptionHandler(HourlyRateNotSetException.class)
+    ProblemDetail hourlyRateNotSet(HourlyRateNotSetException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setType(URI.create("/problems/hourly-rate-not-set"));
+        return problem;
     }
 
     @ExceptionHandler(NotFoundException.class)

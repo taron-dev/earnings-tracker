@@ -78,10 +78,10 @@ class EarningWindowTest {
     @Test
     void earnsFromWorkLogsDatedInsideTheWindowEachAtItsOwnRate() {
         List<WorkLog> workLogs = List.of(
-                new WorkLog(LocalDate.of(2026, 9, 30), WorkedTime.of(8, 0), new HourlyRate(eur("30"))),
-                new WorkLog(OCT_1, WorkedTime.of(3, 0), new HourlyRate(eur("30"))),
-                new WorkLog(OCT_31, WorkedTime.of(2, 30), new HourlyRate(eur("40"))),
-                new WorkLog(LocalDate.of(2026, 11, 1), WorkedTime.of(8, 0), new HourlyRate(eur("40"))));
+                WorkLog.create(LocalDate.of(2026, 9, 30), WorkedTime.of(8, 0), new HourlyRate(eur("30"))),
+                WorkLog.create(OCT_1, WorkedTime.of(3, 0), new HourlyRate(eur("30"))),
+                WorkLog.create(OCT_31, WorkedTime.of(2, 30), new HourlyRate(eur("40"))),
+                WorkLog.create(LocalDate.of(2026, 11, 1), WorkedTime.of(8, 0), new HourlyRate(eur("40"))));
 
         assertThat(OCTOBER.earningsFrom(workLogs, EUR)).isEqualTo(eur("190.00"));
     }
@@ -90,8 +90,8 @@ class EarningWindowTest {
     void roundsEarningsOfEachWorkLogBeforeSumming() {
         HourlyRate rate = new HourlyRate(eur("25"));
         List<WorkLog> workLogs = List.of(
-                new WorkLog(OCT_1, WorkedTime.of(0, 7), rate),
-                new WorkLog(OCT_31, WorkedTime.of(0, 7), rate));
+                WorkLog.create(OCT_1, WorkedTime.of(0, 7), rate),
+                WorkLog.create(OCT_31, WorkedTime.of(0, 7), rate));
 
         assertThat(OCTOBER.earningsFrom(workLogs, EUR)).isEqualTo(eur("5.84"));
     }
@@ -99,7 +99,7 @@ class EarningWindowTest {
     @Test
     void rejectsWorkLogsEarnedInAnotherCurrency() {
         Money usd = new Money(new BigDecimal("30"), Currency.getInstance("USD"));
-        List<WorkLog> workLogs = List.of(new WorkLog(OCT_1, WorkedTime.of(1, 0), new HourlyRate(usd)));
+        List<WorkLog> workLogs = List.of(WorkLog.create(OCT_1, WorkedTime.of(1, 0), new HourlyRate(usd)));
 
         assertThatIllegalArgumentException().isThrownBy(() -> OCTOBER.earningsFrom(workLogs, EUR));
     }

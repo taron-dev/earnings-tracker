@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-work-log
+      author: taron
+      changes:
+        - createTable:
+            tableName: work_log
+            remarks: Time worked on a day, with the hourly rate current when it was recorded
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: work_log_pk
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: day
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: minutes
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rate_amount
+                  type: numeric(12, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: rate_currency
+                  type: char(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: work_log
+            indexName: work_log_user_day_idx
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: day

@@ -1,5 +1,6 @@
 package sk.taron.earningstracker.hourlyrate;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -23,9 +24,12 @@ public class HourlyRateService {
 
     @Transactional(readOnly = true)
     public HourlyRate current(UUID userId) {
-        return repository.findById(userId)
-                .map(mapper::toDomain)
-                .orElseThrow(() -> new NotFoundException("Hourly rate is not set"));
+        return find(userId).orElseThrow(() -> new NotFoundException("Hourly rate is not set"));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<HourlyRate> find(UUID userId) {
+        return repository.findById(userId).map(mapper::toDomain);
     }
 
     /** Creates or replaces the user's rate; the row is keyed by the user, so saving is an upsert. */

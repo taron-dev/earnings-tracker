@@ -62,7 +62,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
        - tabuľka `hourly_rate(user_id uuid PK, amount, currency, updated_at)`, iba aktuálna sadzba, bez histórie
        - `PUT` robí upsert, telo aj odpoveď `{"perHour": {...}}`, 200
        - `GET` 200, alebo 404, keď sadzba nie je nastavená
-     - [ ] 2.8.2 Záznamy práce: `POST/GET/PUT/DELETE /api/work-logs`
+     - [x] 2.8.2 Záznamy práce: `POST/GET/PUT/DELETE /api/work-logs`
        - tabuľka `work_log(id, user_id, day, minutes, rate_amount, rate_currency, created_at, updated_at)`, index (`user_id`, `day`)
        - `POST {"day", "minutes"}`: sadzbu doplní server z aktuálnej, bez sadzby 409
        - `PUT /{id}` mení iba deň a minúty, sadzba ostáva pôvodná
