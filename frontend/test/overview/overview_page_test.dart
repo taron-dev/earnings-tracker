@@ -20,6 +20,16 @@ void main() {
     expect(find.text('40$nbsp€ / h'), findsOneWidget);
   });
 
+  testWidgets('opens the plan detail from the window', (tester) async {
+    final router = await pumpApp(tester);
+
+    await tester.tap(find.byKey(const Key('overview-window')));
+    await tester.pumpAndSettle();
+
+    expect(currentPath(router), '/plans/$defaultPlanId');
+    expect(find.widgetWithText(AppBar, '1. – 30. 11. 2026'), findsOneWidget);
+  });
+
   testWidgets('opens settings from the rate', (tester) async {
     await pumpApp(tester);
 

@@ -124,7 +124,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - `DELETE` 204, cudzí alebo neexistujúci 404; záznamy práce ostávajú
      - `@Size(max = 100)` na názve položky (iba DTO)
      - bez optimistickej zámky, vyhrá posledné uloženie
-   - [ ] 4.3 Záložka Plány (iba čítanie)
+   - [x] 4.3 Záložka Plány (iba čítanie)
      - tretia záložka `/plans` v `StatefulShellRoute`: riadok „1. 10. – 31. 10. · 2 450 / 3 100 € · základ ✓ · 5 z 8“ (súhrn sčítaný z `items`)
      - detail `/plans/:id` z dát zoznamu: okno, zarobené, položky v sekciách ZÁKLAD a EXTRA s pruhmi, nepriradený zárobok iba keď > 0; bez najbližšieho cieľa a sadzby
      - plán nie je v zozname: „Plán neexistuje“ s odkazom na zoznam

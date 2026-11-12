@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 
 import '../overview/overview_page.dart';
+import '../plans/plan_detail_page.dart';
+import '../plans/plans_page.dart';
 import '../settings/settings_page.dart';
 import '../work_logs/work_logs_page.dart';
 import 'app_shell.dart';
@@ -26,6 +28,20 @@ final List<RouteBase> appRoutes = [
           GoRoute(
             path: '/work-logs',
             builder: (context, state) => const WorkLogsPage(),
+          ),
+        ],
+      ),
+      StatefulShellBranch(
+        routes: [
+          GoRoute(
+            path: '/plans',
+            builder: (context, state) => const PlansPage(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) => PlanDetailPage(planId: state.pathParameters['id']!),
+              ),
+            ],
           ),
         ],
       ),

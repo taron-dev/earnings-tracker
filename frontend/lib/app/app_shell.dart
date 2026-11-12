@@ -11,17 +11,24 @@ class AppShell extends ConsumerWidget {
 
   final StatefulNavigationShell navigationShell;
 
+  /// Index of the plans branch in `appRoutes`.
+  static const _plansTab = 2;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Known without a rate means recording would fail, so "+" leads to setting one instead.
     final rateMissing = ref.watch(hourlyRateProvider).hasValue && ref.watch(hourlyRateProvider).value == null;
+    // Recording work belongs to the overview and work log tabs, not to the plan list.
+    final onPlans = navigationShell.currentIndex == _plansTab;
     return Scaffold(
       body: navigationShell,
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Zapísať prácu',
-        onPressed: () => rateMissing ? context.push('/settings') : showWorkLogSheet(context),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: onPlans
+          ? null
+          : FloatingActionButton(
+              tooltip: 'Zapísať prácu',
+              onPressed: () => rateMissing ? context.push('/settings') : showWorkLogSheet(context),
+              child: const Icon(Icons.add),
+            ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: navigationShell.goBranch,
@@ -35,6 +42,11 @@ class AppShell extends ConsumerWidget {
             icon: Icon(Icons.list_alt_outlined),
             selectedIcon: Icon(Icons.list_alt),
             label: 'Záznamy',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.event_note_outlined),
+            selectedIcon: Icon(Icons.event_note),
+            label: 'Plány',
           ),
         ],
       ),

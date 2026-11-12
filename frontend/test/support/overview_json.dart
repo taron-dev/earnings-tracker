@@ -17,16 +17,23 @@ Map<String, dynamic> itemJson(
   'essential': essential,
 };
 
+/// Id of the plan [overviewJson] describes unless told otherwise.
+const defaultPlanId = '6f1c2d4e-0000-4000-8000-000000000001';
+
 /// A November plan 1480 EUR into funding: taxes covered, mortgage in progress, the rest open.
 Map<String, dynamic> overviewJson({
+  String planId = defaultPlanId,
+  (String, String) window = ('2026-11-01', '2026-11-30'),
+  int essentialsCount = 3,
   List<Map<String, dynamic>>? items,
   bool essentialsCovered = false,
   Map<String, dynamic>? nextMilestone = const {'position': 1, 'missing': {'amount': '170.00', 'currency': 'EUR'}, 'minutesNeeded': 255},
   String earnings = '1480.00',
   String unassigned = '0.00',
 }) => {
-  'planId': '6f1c2d4e-0000-4000-8000-000000000001',
-  'window': {'from': '2026-11-01', 'to': '2026-11-30'},
+  'planId': planId,
+  'window': {'from': window.$1, 'to': window.$2},
+  'essentialsCount': essentialsCount,
   'earnings': eurJson(earnings),
   'essentialsCovered': essentialsCovered,
   'items':

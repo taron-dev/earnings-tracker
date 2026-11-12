@@ -12,12 +12,23 @@ void main() {
     expect(currentPath(router), '/overview');
     expect(find.widgetWithText(NavigationBar, 'Prehľad'), findsOneWidget);
     expect(find.widgetWithText(NavigationBar, 'Záznamy'), findsOneWidget);
+    expect(find.widgetWithText(NavigationBar, 'Plány'), findsOneWidget);
+  });
+
+  testWidgets('switches to the plans tab', (tester) async {
+    final router = await pumpApp(tester);
+
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Plány')));
+    await tester.pumpAndSettle();
+
+    expect(currentPath(router), '/plans');
+    expect(find.widgetWithText(AppBar, 'Plány'), findsOneWidget);
   });
 
   testWidgets('switches to the work log tab', (tester) async {
     final router = await pumpApp(tester);
 
-    await tester.tap(find.widgetWithText(NavigationBar, 'Záznamy'));
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Záznamy')));
     await tester.pumpAndSettle();
 
     expect(currentPath(router), '/work-logs');

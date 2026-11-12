@@ -3,6 +3,7 @@ import 'package:earnings_tracker/app/today.dart';
 import 'package:earnings_tracker/auth/auth_providers.dart';
 import 'package:earnings_tracker/hourly_rate/hourly_rate_api.dart';
 import 'package:earnings_tracker/overview/plan_overview_api.dart';
+import 'package:earnings_tracker/plans/plans_api.dart';
 import 'package:earnings_tracker/work_logs/work_log_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +12,7 @@ import 'package:go_router/go_router.dart';
 
 import 'fake_hourly_rate_api.dart';
 import 'fake_plan_overview_api.dart';
+import 'fake_plans_api.dart';
 import 'fake_work_log_api.dart';
 
 /// 12 November 2026, the "today" of every widget test.
@@ -23,6 +25,7 @@ Future<GoRouter> pumpApp(
   FakeHourlyRateApi? hourlyRateApi,
   FakePlanOverviewApi? overviewApi,
   FakeWorkLogApi? workLogApi,
+  FakePlansApi? plansApi,
 }) async {
   // A tall phone screen, so a whole plan fits without scrolling.
   tester.view.physicalSize = const Size(430, 1400);
@@ -38,6 +41,7 @@ Future<GoRouter> pumpApp(
         hourlyRateApiProvider.overrideWithValue(hourlyRateApi ?? FakeHourlyRateApi(eurPerHour('40.00'))),
         planOverviewApiProvider.overrideWithValue(overviewApi ?? FakePlanOverviewApi()),
         workLogApiProvider.overrideWithValue(workLogApi ?? FakeWorkLogApi()),
+        plansApiProvider.overrideWithValue(plansApi ?? FakePlansApi()),
       ],
       child: MaterialApp.router(routerConfig: router),
     ),

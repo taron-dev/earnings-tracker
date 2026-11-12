@@ -54,11 +54,14 @@ class NextMilestone {
   );
 }
 
-/// `GET /api/plans/current/overview`: where the plan covering today stands.
+/// Where a plan stands: `GET /api/plans/current/overview` for today's plan, and each plan of
+/// `GET /api/plans` (there always without the next milestone).
 class PlanOverview {
   const PlanOverview({
+    required this.planId,
     required this.windowFrom,
     required this.windowTo,
+    required this.essentialsCount,
     required this.earnings,
     required this.essentialsCovered,
     required this.items,
@@ -66,9 +69,14 @@ class PlanOverview {
     required this.unassignedEarnings,
   });
 
+  final String planId;
+
   /// Earning Window, both days included.
   final DateTime windowFrom;
   final DateTime windowTo;
+
+  /// How many items, from the start of the Funding Order, lie above the Essentials Line.
+  final int essentialsCount;
   final Money earnings;
   final bool essentialsCovered;
   final List<OverviewItem> items;
@@ -81,8 +89,10 @@ class PlanOverview {
     final window = json['window'] as Map<String, dynamic>;
     final milestone = json['nextMilestone'] as Map<String, dynamic>?;
     return PlanOverview(
+      planId: json['planId'] as String,
       windowFrom: DateTime.parse(window['from'] as String),
       windowTo: DateTime.parse(window['to'] as String),
+      essentialsCount: json['essentialsCount'] as int,
       earnings: Money.fromJson(json['earnings'] as Map<String, dynamic>),
       essentialsCovered: json['essentialsCovered'] as bool,
       items: [for (final item in json['items'] as List<dynamic>) OverviewItem.fromJson(item as Map<String, dynamic>)],

@@ -8,6 +8,7 @@ import '../format/time_format.dart';
 import '../hourly_rate/hourly_rate_api.dart';
 import '../money/money_format.dart';
 import '../settings/settings_page.dart';
+import 'plan_items.dart';
 import 'plan_overview.dart';
 import 'plan_overview_api.dart';
 
@@ -80,7 +81,15 @@ class _OverviewBody extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(formatWindow(overview.windowFrom, overview.windowTo), style: textTheme.titleMedium),
+        // The window opens the plan's detail, the way the rate opens settings.
+        Align(
+          alignment: Alignment.centerLeft,
+          child: InkWell(
+            key: const Key('overview-window'),
+            onTap: () => context.go('/plans/${overview.planId}'),
+            child: Text(formatWindow(overview.windowFrom, overview.windowTo), style: textTheme.titleMedium),
+          ),
+        ),
         Text(daysLeftLabel(overview.windowTo, ref.watch(todayProvider)), style: textTheme.bodySmall),
         const SizedBox(height: 12),
         Row(
@@ -97,71 +106,8 @@ class _OverviewBody extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         _MilestoneCard(overview: overview),
-        ..._section(
-          context,
-          title: 'ZÁKLAD',
-          status: overview.essentialsCovered ? 'pokrytý' : 'nepokrytý',
-          items: overview.items.where((item) => item.essential),
-        ),
-        ..._section(context, title: 'EXTRA', items: overview.items.where((item) => !item.essential)),
-        if (overview.unassignedEarnings.minorUnits > 0) ...[
-          const SizedBox(height: 24),
-          Text('Nepriradené ${formatMoney(overview.unassignedEarnings)}', style: textTheme.titleMedium),
-          Text('Zárobok nad všetky položky, zatiaľ bez účelu.', style: textTheme.bodySmall),
-        ],
+        ...planItemSections(context, overview),
       ],
-    );
-  }
-}
-
-/// A titled group of item rows; nothing at all when [items] is empty.
-List<Widget> _section(BuildContext context, {required String title, String? status, required Iterable<OverviewItem> items}) {
-  if (items.isEmpty) return const [];
-  final style = Theme.of(context).textTheme.labelLarge;
-  return [
-    const SizedBox(height: 24),
-    Row(
-      children: [
-        Expanded(child: Text(title, style: style)),
-        if (status != null) Text(status, style: style),
-      ],
-    ),
-    for (final item in items) _ItemRow(item: item),
-  ];
-}
-
-/// One Budget Item: state icon, name, amount and a bar of how much is funded.
-class _ItemRow extends StatelessWidget {
-  const _ItemRow({required this.item});
-
-  final OverviewItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final (icon, amount) = switch (item.state) {
-      CoverageState.covered => (Icons.check_circle, formatMoney(item.target)),
-      CoverageState.inProgress => (Icons.timelapse, '${formatAmount(item.funded)} / ${formatMoney(item.target)}'),
-      CoverageState.uncovered => (Icons.radio_button_unchecked, formatMoney(item.target)),
-    };
-    final progress = item.target.minorUnits == 0 ? 1.0 : item.funded.minorUnits / item.target.minorUnits;
-    return Padding(
-      key: Key('item-${item.position}'),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Icon(icon, size: 20),
-              const SizedBox(width: 8),
-              Expanded(child: Text(item.name)),
-              Text(amount),
-            ],
-          ),
-          const SizedBox(height: 6),
-          LinearProgressIndicator(value: progress),
-        ],
-      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import '../format/time_format.dart';
 import '../hourly_rate/hourly_rate_api.dart';
 import '../money/money_format.dart';
 import '../overview/plan_overview_api.dart';
+import '../plans/plans_api.dart';
 import 'work_log.dart';
 import 'work_log_api.dart';
 
@@ -118,6 +119,7 @@ class _WorkLogSheetState extends ConsumerState<WorkLogSheet> {
   void _closeWith(String message) {
     ref.invalidate(overviewProvider);
     ref.invalidate(workLogsProvider);
+    ref.invalidate(plansProvider);
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     Navigator.of(context).pop();
