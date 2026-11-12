@@ -35,4 +35,17 @@ void main() {
       });
     }
   });
+
+  group('Money.plus', () {
+    Money eur(String amount) => Money.fromJson({'amount': amount, 'currency': 'EUR'});
+
+    test('adds amounts of the same currency', () {
+      expect(eur('260.00').plus(eur('320.50')).toJson(), {'amount': '580.50', 'currency': 'EUR'});
+    });
+
+    test('rejects another currency or scale', () {
+      expect(() => eur('1.00').plus(Money.fromJson({'amount': '1.00', 'currency': 'CZK'})), throwsArgumentError);
+      expect(() => eur('1.00').plus(Money.fromJson({'amount': '1', 'currency': 'EUR'})), throwsArgumentError);
+    });
+  });
 }

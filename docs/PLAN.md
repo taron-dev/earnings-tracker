@@ -100,7 +100,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - karta najbližšieho cieľa (položka, chýba €, h a min); plne pokrytý plán „Všetko pokryté ✓“, prázdny „Plán nemá položky“
      - položky s pruhom v sekciách ZÁKLAD (s príznakom pokrytý/nepokrytý) a EXTRA; nepriradený zárobok iba keď > 0
      - 409 `hourly-rate-not-set`: „Najprv nastav svoju hodinovú sadzbu“ + tlačidlo; 404: „Dnešok nepatrí do žiadneho plánu“ s vysvetlením, že práca sa započíta neskôr
-   - [ ] 3.5 Zoznam záznamov: okno aktuálneho plánu (bez listovania), súčet hodín a zárobku; bez plánu posledných 30 dní a hláška
+   - [x] 3.5 Zoznam záznamov: okno aktuálneho plánu (bez listovania), súčet hodín a zárobku; bez plánu posledných 30 dní a hláška
    - [ ] 3.6 Zápis práce: spodný panel, „+“ na oboch záložkách (bez sadzby vedie do Nastavení)
      - deň predvolený na dnes, ťuk otvorí kalendár; rýchle voľby 1, 2, 4, 6, 8 h; pole h a min
      - živý náhľad „= 260 € pri 40 €/h“; validácia 1 min až 24 h, inak Uložiť neaktívne

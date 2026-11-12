@@ -38,4 +38,12 @@ void main() {
       expect(daysLeftLabel(d(2026, 10, 31), d(2026, 10, 20)), 'ešte 12 dní');
     });
   });
+
+  group('formatDay', () {
+    test('shows the Slovak weekday abbreviation', () {
+      expect(formatDay(d(2026, 11, 12)), 'št 12. 11.');
+      expect(formatDay(d(2026, 11, 9)), 'po 9. 11.');
+      expect(formatDay(d(2026, 11, 15)), 'ne 15. 11.');
+    });
+  });
 }

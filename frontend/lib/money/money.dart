@@ -26,6 +26,17 @@ class Money {
     );
   }
 
+  /// Sum of two amounts in the same currency and scale, as the backend sends them.
+  Money plus(Money other) {
+    if (other.currency != currency || other.scale != scale) {
+      throw ArgumentError('Cannot add $other to $this');
+    }
+    return Money(minorUnits: minorUnits + other.minorUnits, scale: scale, currency: currency);
+  }
+
+  @override
+  String toString() => '${_amountString()} $currency';
+
   Map<String, dynamic> toJson() => {'amount': _amountString(), 'currency': currency};
 
   String _amountString() {

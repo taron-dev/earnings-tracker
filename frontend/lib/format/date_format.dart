@@ -20,3 +20,8 @@ String daysLeftLabel(DateTime windowEnd, DateTime today) {
   if (days <= 4) return 'ešte $days dni';
   return 'ešte $days dní';
 }
+
+const _weekdays = ['po', 'ut', 'st', 'št', 'pi', 'so', 'ne'];
+
+/// A day in a list of work logs: `št 12. 11.`
+String formatDay(DateTime day) => '${_weekdays[day.weekday - 1]} ${day.day}. ${day.month}.';
