@@ -58,7 +58,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - sumy v DB `numeric(12,2)` + `currency char(3)`; API prijíma iba EUR (iná mena 400); na DTO `@Digits(integer = 10, fraction = 2)` pre všetky sumy
      - chyby ako `ProblemDetail` z jedného `@RestControllerAdvice`: `IllegalArgumentException` a Bean Validation 400, `NotFoundException` 404 (aj cudzí záznam), `OverlappingPlanException` 409, `HourlyRateNotSetException` 409 (typ `hourly-rate-not-set`)
      - zápis: `POST` 201 + `Location` + telo, `PUT` 200 + telo, `DELETE` 204, neexistujúci 404
-     - [ ] 2.8.1 Hodinová sadzba: `GET` / `PUT /api/hourly-rate`
+     - [x] 2.8.1 Hodinová sadzba: `GET` / `PUT /api/hourly-rate`
        - tabuľka `hourly_rate(user_id uuid PK, amount, currency, updated_at)`, iba aktuálna sadzba, bez histórie
        - `PUT` robí upsert, telo aj odpoveď `{"perHour": {...}}`, 200
        - `GET` 200, alebo 404, keď sadzba nie je nastavená

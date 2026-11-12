@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-hourly-rate
+      author: taron
+      changes:
+        - createTable:
+            tableName: hourly_rate
+            remarks: Current hourly rate of a user, one row per user without history
+            columns:
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: hourly_rate_pk
+              - column:
+                  name: amount
+                  type: numeric(12, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency
+                  type: char(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
