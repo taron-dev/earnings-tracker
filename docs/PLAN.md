@@ -107,6 +107,39 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 3.7 Úprava a zmazanie: ťuk na riadok otvorí ten istý panel s pôvodnou sadzbou záznamu; 🗑 s potvrdzovacím dialógom, bez „Späť“ (opätovný `POST` by zmenil sadzbu)
    - [x] 3.8 Nasadenie a začiatok používania: GitHub Pages, prvý reálny plán cez curl, sadzba v UI, prvý zápis naživo; hotové, keď sa na produkcii po zápise pohne najbližší cieľ
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.
+   Spoločné pre všetky podkroky (každý má vlastný commit a testy; pravidlá z kroku 3 platia ďalej):
+   - backend pred Flutterom; o pokrytí rozhoduje iba server, klient doménu nepočíta
+   - minulý plán (okno skončilo) je v UI iba na čítanie, backend to nevynucuje (o dnešku rozhoduje klient); zmazať sa dá aj minulý plán
+   - okno sa pri úprave dá voľne meniť, jediné pravidlo je prekrytie s iným plánom (409), bez varovaní o vyradených záznamoch
+   - po `POST`, `PUT` aj `DELETE` `ref.invalidate` zoznamu plánov aj Prehľadu
+   - [ ] 4.1 Backend `GET /api/plans`: zoznam s pokrytím
+     - každý prvok v tvare `overview` bez najbližšieho cieľa: `planId`, `window`, `essentialsCount`, `earnings`, `essentialsCovered`, `items[]` (`position`, `name`, `target`, `funded`, `state`, `essential`), `unassignedEarnings`
+     - nepotrebuje sadzbu (žiadne 409), zoradené podľa `window.from` zostupne, bez stránkovania
+     - výpočet zdieľaný s `overview` (ten navyše pridá najbližší cieľ)
+     - zárobok jedným dotazom na záznamy práce v rozsahu min–max okien, rozdelenie podľa okien v pamäti
+     - `GET /api/plans/{id}` ostáva len ako cieľ `Location`, Flutter ho nepoužíva
+   - [ ] 4.2 Backend `PUT` a `DELETE /api/plans/{id}`
+     - `PUT` telo rovnaké ako `POST`, nahradí celý plán (okno, `essentialsCount`, položky v poslanom poradí), 200 + tvar tela
+     - prekrytie okna voči ostatným plánom používateľa (bez upravovaného) 409; cudzí alebo neexistujúci 404
+     - `DELETE` 204, cudzí alebo neexistujúci 404; záznamy práce ostávajú
+     - `@Size(max = 100)` na názve položky (iba DTO)
+     - bez optimistickej zámky, vyhrá posledné uloženie
+   - [ ] 4.3 Záložka Plány (iba čítanie)
+     - tretia záložka `/plans` v `StatefulShellRoute`: riadok „1. 10. – 31. 10. · 2 450 / 3 100 € · základ ✓ · 5 z 8“ (súhrn sčítaný z `items`)
+     - detail `/plans/:id` z dát zoznamu: okno, zarobené, položky v sekciách ZÁKLAD a EXTRA s pruhmi, nepriradený zárobok iba keď > 0; bez najbližšieho cieľa a sadzby
+     - plán nie je v zozname: „Plán neexistuje“ s odkazom na zoznam
+     - ťuk na okno v hlavičke Prehľadu otvorí detail bežiaceho plánu
+   - [ ] 4.4 Nový plán: `/plans/new` na celú obrazovku, „+ Nový plán“ v záložke Plány
+     - jeden `ReorderableListView` (ťahá sa za ☰), hranica základu je samostatný ťahateľný riadok; `essentialsCount` = počet položiek nad ňou
+     - riadok „Názov · 450 €“, ťuk otvorí dialóg (názov, suma, 🗑 bez potvrdenia); „+ Pridať položku“ pridá na koniec (EXTRA)
+     - validácia: názov povinný (orezaný, max. 100), suma > 0 v rozsahu `@Digits(10,2)`; prázdny zoznam aj duplicitné názvy povolené
+     - predvyplnenie kópiou predošlého plánu (najneskorší `window.to`): položky, poradie, hranica; okno `od = predošlý.do + 1` s rovnakou dĺžkou; bez plánov prázdny formulár s oknom od dneška do konca mesiaca (TDD unit test)
+     - chyby: zlyhané uloženie nechá formulár s hodnotami, 409 „Okno sa prekrýva s iným plánom“ pri okne; odchod s neuloženými zmenami „Zahodiť zmeny?“
+     - Prehľad: pri 404 tlačidlo „Vytvoriť plán“, pri „Plán nemá položky“ tlačidlo „Pridať položky“ (úprava)
+   - [ ] 4.5 Úprava a zmazanie
+     - `/plans/:id/edit` ten istý formulár s `PUT`, Upraviť iba pri bežiacom a budúcom pláne
+     - 🗑 s potvrdzovacím dialógom pri každom pláne
+   - [ ] 4.6 Nasadenie: produkcia, odstrániť zmienky o curl (krok 3 a Známe obmedzenia), doplniť obmedzenie „minulý plán iba na čítanie len v UI“; hotové, keď na produkcii vytvorím ďalší plán kópiou bežiaceho, upravím bežiaci plán (napr. presuniem hranicu) a Prehľad zmenu ukáže
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
 6. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
 
