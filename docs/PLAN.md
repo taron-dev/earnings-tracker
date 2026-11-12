@@ -84,7 +84,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
        - prázdny plán: mena EUR
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
    Spoločné pre všetky podkroky (každý má vlastný commit a testy):
-   - prvý plán cez `POST /api/plans` (curl), UI na tvorbu plánu až v kroku 4; sadzba má v kroku 3 vlastnú obrazovku
+   - sadzba má v kroku 3 vlastnú obrazovku
    - stav cez `flutter_riverpod` bez generovania kódu; po zápise `ref.invalidate` prehľadu aj zoznamu
    - modely s ručným `fromJson`/`toJson`, bez `json_serializable` a `build_runner`
    - `Money` ako `int minorUnits` + `int scale` (scale prečítaný z reťazca API), zaokrúhlenie `HALF_UP` ako na serveri, bez balíka `decimal`
@@ -161,7 +161,7 @@ Vedome ponechané, opraviť, keď začnú prekážať:
 - Nastavenia sa otvárajú cez `context.push`, takže URL v prehliadači ostane `/overview`; F5 v Nastaveniach vráti na Prehľad (`GoRouter.optionURLReflectsImperativeAPIs` by to zmenil)
 - Flutter kód nemá jednotnú šírku riadkov: nové súbory po `dart format` majú 80 znakov, staršie dlhšie; zjednotiť nastavením `formatter: page_width` v `analysis_options.yaml`
 - Widget testy bežia bez slovenskej lokalizácie, slovenský kalendár (týždeň od pondelka) je overený len ručne na produkcii
-- Prvý plán sa zakladá cez `POST /api/plans` (curl), UI na tvorbu plánu príde v kroku 4
+- Minulý plán (okno skončilo) je iba na čítanie len v UI; backend `PUT /api/plans/{id}` prijme úpravu akéhokoľvek vlastného plánu, lebo nepozná dnešok používateľa
 
 ## Odložené
 
