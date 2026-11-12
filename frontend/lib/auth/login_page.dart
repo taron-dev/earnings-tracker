@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, this.sessionExpired = false});
+
+  /// Set when the backend rejected the token (401) and the app signed the user out.
+  final bool sessionExpired;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -64,6 +67,10 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text('Earnings Tracker', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center),
+                if (widget.sessionExpired) ...[
+                  const SizedBox(height: 16),
+                  const Text('Prihlásenie vypršalo, prihlás sa znova.', textAlign: TextAlign.center),
+                ],
                 const SizedBox(height: 32),
                 FilledButton(onPressed: _signInWithGoogle, child: const Text('Prihlásiť sa cez Google')),
                 const SizedBox(height: 24),

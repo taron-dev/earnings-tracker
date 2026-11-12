@@ -9,4 +9,16 @@ void main() {
     expect(find.text('Prihlásiť sa cez Google'), findsOneWidget);
     expect(find.text('Poslať prihlasovací odkaz'), findsOneWidget);
   });
+
+  testWidgets('tells the user when the session expired', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginPage(sessionExpired: true)));
+
+    expect(find.text('Prihlásenie vypršalo, prihlás sa znova.'), findsOneWidget);
+  });
+
+  testWidgets('says nothing about expiry on a regular sign-in', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: LoginPage()));
+
+    expect(find.textContaining('vypršalo'), findsNothing);
+  });
 }

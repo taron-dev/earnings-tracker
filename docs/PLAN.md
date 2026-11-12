@@ -93,7 +93,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - routing `StatefulShellRoute`: `/overview` a `/work-logs` so spodnou navigáciou, `/settings` samostatne, `/login`; `/` presmeruje na `/overview`
    - chyby: zlyhané načítanie ukáže „Skúsiť znova“, zlyhané uloženie nechá panel otvorený s hodnotami, 401 odhlási s hláškou „Prihlásenie vypršalo“
    - [x] 3.1 Základy: závislosti, locale `sk`, `ProviderScope`, `apiClient` ako provider; `Money` cez TDD (parsovanie, scale, náhľad zárobku z minút a sadzby s prípadmi z backendového `HourlyRateTest`, formát)
-   - [ ] 3.2 Kostra navigácie: `StatefulShellRoute` s prázdnymi `/overview` a `/work-logs`, spodná navigácia, `/settings` s účtom a odhlásením, 401 → `/login`; odstrániť `HomePage` („Hello, user“), backendový `/api/hello` ostáva
+   - [x] 3.2 Kostra navigácie: `StatefulShellRoute` s prázdnymi `/overview` a `/work-logs`, spodná navigácia, `/settings` s účtom a odhlásením, 401 → `/login`; odstrániť `HomePage` („Hello, user“), backendový `/api/hello` ostáva
    - [ ] 3.3 Hodinová sadzba: `GET`/`PUT /api/hourly-rate`, formulár v Nastaveniach s upozornením „Nová sadzba platí len pre práce zapísané odteraz“
    - [ ] 3.4 Prehľad: `overview?date=` lokálny dnešok
      - hlavička: okno, „ešte N dní“ (počítané na klientovi), zarobené, sadzba malým písmom (ťuk → Nastavenia)

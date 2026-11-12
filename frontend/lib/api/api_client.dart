@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../config.dart';
+import '../router.dart';
+import 'unauthorized_interceptor.dart';
 
 /// HTTP client for our Spring backend; attaches the current Supabase access token to every request.
 ///
@@ -12,12 +14,16 @@ final apiClientProvider = Provider<Dio>(
     ..interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          final token = Supabase.instance.client.auth.currentSession?.accessToken;
+          final token =
+              Supabase.instance.client.auth.currentSession?.accessToken;
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           handler.next(options);
         },
       ),
+    )
+    ..interceptors.add(
+      UnauthorizedInterceptor(onUnauthorized: signOutExpiredSession),
     ),
 );
