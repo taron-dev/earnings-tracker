@@ -120,6 +120,16 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
 6. Zoznam plánov vrátane minulých s nepokrytými položkami
 7. Úprava plánu kedykoľvek počas okna
 
+## Známe obmedzenia
+
+Vedome ponechané, opraviť, keď začnú prekážať:
+
+- „Dnešok“ (`todayProvider`) sa určí pri načítaní; aplikácia otvorená cez polnoc ukazuje včerajší deň, kým ju neobnovím
+- Nastavenia sa otvárajú cez `context.push`, takže URL v prehliadači ostane `/overview`; F5 v Nastaveniach vráti na Prehľad (`GoRouter.optionURLReflectsImperativeAPIs` by to zmenil)
+- Flutter kód nemá jednotnú šírku riadkov: nové súbory po `dart format` majú 80 znakov, staršie dlhšie; zjednotiť nastavením `formatter: page_width` v `analysis_options.yaml`
+- Widget testy bežia bez slovenskej lokalizácie, slovenský kalendár (týždeň od pondelka) je overený len ručne na produkcii
+- Prvý plán sa zakladá cez `POST /api/plans` (curl), UI na tvorbu plánu príde v kroku 4
+
 ## Odložené
 
 - Šablóna (zatiaľ kópia predošlého plánu)
