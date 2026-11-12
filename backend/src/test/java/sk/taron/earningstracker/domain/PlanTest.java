@@ -24,7 +24,7 @@ class PlanTest {
     static final BudgetItem TAXES = new BudgetItem("Odvody", eur("100"));
     static final BudgetItem MORTGAGE = new BudgetItem("Hypotéka", eur("200"));
     static final BudgetItem VACATION = new BudgetItem("Dovolenka", eur("50"));
-    static final Plan PLAN = new Plan(OCTOBER, List.of(TAXES, MORTGAGE, VACATION), 2);
+    static final Plan PLAN = Plan.create(OCTOBER, List.of(TAXES, MORTGAGE, VACATION), 2);
 
     @Test
     void leavesEveryItemUncoveredWithoutEarnings() {
@@ -57,20 +57,20 @@ class PlanTest {
 
     @Test
     void anEmptyPlanHasNoCoverage() {
-        assertThat(new Plan(OCTOBER, List.of(), 0).coverageFor(eur("100"))).isEmpty();
+        assertThat(Plan.create(OCTOBER, List.of(), 0).coverageFor(eur("100"))).isEmpty();
     }
 
     @Test
     void rejectsItemsInDifferentCurrencies() {
         BudgetItem czkItem = new BudgetItem("Nájom", new Money(new BigDecimal("5000"), Currency.getInstance("CZK")));
 
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(TAXES, czkItem), 1));
+        assertThatIllegalArgumentException().isThrownBy(() -> Plan.create(OCTOBER, List.of(TAXES, czkItem), 1));
     }
 
     @Test
     void isNotChangedByLaterChangesToTheListItWasCreatedFrom() {
         List<BudgetItem> items = new ArrayList<>(List.of(TAXES));
-        Plan plan = new Plan(OCTOBER, items, 1);
+        Plan plan = Plan.create(OCTOBER, items, 1);
 
         items.add(MORTGAGE);
 
@@ -87,9 +87,9 @@ class PlanTest {
 
     @Test
     void acceptsEssentialsLineFromTopToBottomOfTheFundingOrder() {
-        assertThat(new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 0).essentialsCount()).isZero();
-        assertThat(new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 2).essentialsCount()).isEqualTo(2);
-        assertThat(new Plan(OCTOBER, List.of(), 0).essentialsCount()).isZero();
+        assertThat(Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), 0).essentialsCount()).isZero();
+        assertThat(Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), 2).essentialsCount()).isEqualTo(2);
+        assertThat(Plan.create(OCTOBER, List.of(), 0).essentialsCount()).isZero();
     }
 
     @Test
@@ -100,8 +100,8 @@ class PlanTest {
 
     @Test
     void hasOnlyExtrasWhenTheLineIsAtTheTopAndOnlyEssentialsWhenAtTheBottom() {
-        Plan allExtras = new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 0);
-        Plan allEssentials = new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 2);
+        Plan allExtras = Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), 0);
+        Plan allEssentials = Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), 2);
 
         assertThat(allExtras.essentials()).isEmpty();
         assertThat(allExtras.extras()).containsExactly(TAXES, MORTGAGE);
@@ -117,16 +117,16 @@ class PlanTest {
 
     @Test
     void noEssentialsAreAlwaysCovered() {
-        Plan allExtras = new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 0);
+        Plan allExtras = Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), 0);
 
         assertThat(allExtras.isEssentialsCoveredBy(eur("0"))).isTrue();
     }
 
     @Test
     void rejectsEssentialsLineOutsideTheFundingOrder() {
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(TAXES, MORTGAGE), -1));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(TAXES, MORTGAGE), 3));
-        assertThatIllegalArgumentException().isThrownBy(() -> new Plan(OCTOBER, List.of(), 1));
+        assertThatIllegalArgumentException().isThrownBy(() -> Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), -1));
+        assertThatIllegalArgumentException().isThrownBy(() -> Plan.create(OCTOBER, List.of(TAXES, MORTGAGE), 3));
+        assertThatIllegalArgumentException().isThrownBy(() -> Plan.create(OCTOBER, List.of(), 1));
     }
 
     static final HourlyRate RATE = new HourlyRate(eur("40"));
@@ -157,13 +157,13 @@ class PlanTest {
 
     @Test
     void anEmptyPlanHasNoNextMilestone() {
-        assertThat(new Plan(OCTOBER, List.of(), 0).nextMilestone(eur("0"), RATE)).isEmpty();
+        assertThat(Plan.create(OCTOBER, List.of(), 0).nextMilestone(eur("0"), RATE)).isEmpty();
     }
 
     @Test
     void nextMilestoneTimeAlwaysEarnsTheMissingAmountAndOneMinuteLessDoesNot() {
         HourlyRate oddRate = new HourlyRate(eur("37"));
-        Plan plan = new Plan(OCTOBER, List.of(new BudgetItem("Odvody", eur("10.01"))), 1);
+        Plan plan = Plan.create(OCTOBER, List.of(new BudgetItem("Odvody", eur("10.01"))), 1);
 
         NextMilestone milestone = plan.nextMilestone(eur("0"), oddRate).orElseThrow();
 
@@ -203,7 +203,7 @@ class PlanTest {
 
     @Test
     void anEmptyPlanLeavesAllEarningsUnassigned() {
-        assertThat(new Plan(OCTOBER, List.of(), 0).unassignedEarnings(eur("120.50"))).isEqualTo(eur("120.50"));
+        assertThat(Plan.create(OCTOBER, List.of(), 0).unassignedEarnings(eur("120.50"))).isEqualTo(eur("120.50"));
     }
 
     @Test
@@ -211,6 +211,22 @@ class PlanTest {
         Money czkEarnings = new Money(new BigDecimal("1000"), Currency.getInstance("CZK"));
 
         assertThatIllegalArgumentException().isThrownBy(() -> PLAN.unassignedEarnings(czkEarnings));
+    }
+
+    @Test
+    void newPlansGetDistinctIds() {
+        Plan first = Plan.create(OCTOBER, List.of(TAXES), 1);
+        Plan second = Plan.create(OCTOBER, List.of(TAXES), 1);
+
+        assertThat(first.id()).isNotEqualTo(second.id());
+    }
+
+    @Test
+    @SuppressWarnings("DataFlowIssue")
+    void rejectsNullId() {
+        assertThatNullPointerException()
+                .isThrownBy(() -> new Plan(null, OCTOBER, List.of(TAXES), 1))
+                .withMessage("id must not be null");
     }
 
     @Test
@@ -223,13 +239,13 @@ class PlanTest {
                 .isThrownBy(() -> new BudgetItem("Odvody", null))
                 .withMessage("target must not be null");
         assertThatNullPointerException()
-                .isThrownBy(() -> new Plan(null, List.of(TAXES), 1))
+                .isThrownBy(() -> Plan.create(null, List.of(TAXES), 1))
                 .withMessage("window must not be null");
         assertThatNullPointerException()
-                .isThrownBy(() -> new Plan(OCTOBER, null, 0))
+                .isThrownBy(() -> Plan.create(OCTOBER, null, 0))
                 .withMessage("items must not be null");
         assertThatNullPointerException()
-                .isThrownBy(() -> new Plan(OCTOBER, Arrays.asList(TAXES, null), 1))
+                .isThrownBy(() -> Plan.create(OCTOBER, Arrays.asList(TAXES, null), 1))
                 .withMessage("budget item must not be null");
         assertThatNullPointerException()
                 .isThrownBy(() -> PLAN.coverageFor(null))

@@ -6,10 +6,15 @@ import java.util.Currency;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
-public record Plan(EarningWindow window, List<BudgetItem> items, int essentialsCount) {
+/**
+ * Use {@link #create} for a new Plan; the canonical constructor restores a stored one.
+ */
+public record Plan(UUID id, EarningWindow window, List<BudgetItem> items, int essentialsCount) {
 
     public Plan {
+        Objects.requireNonNull(id, "id must not be null");
         Objects.requireNonNull(window, "window must not be null");
         Objects.requireNonNull(items, "items must not be null");
         items.forEach(item -> Objects.requireNonNull(item, "budget item must not be null"));
@@ -21,6 +26,10 @@ public record Plan(EarningWindow window, List<BudgetItem> items, int essentialsC
             throw new IllegalArgumentException(
                     "Essentials count must be between 0 and " + items.size() + ": " + essentialsCount);
         }
+    }
+
+    public static Plan create(EarningWindow window, List<BudgetItem> items, int essentialsCount) {
+        return new Plan(UUID.randomUUID(), window, items, essentialsCount);
     }
 
     public List<BudgetItem> essentials() {

@@ -70,7 +70,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
        - 1 až 1440 minút: pravidlo v `WorkLog` aj `@Max(1440)` na DTO
        - `GET ?from&to`: povinné, oba dni vrátane, `from > to` 400, bez stránkovania, zoradené podľa `day` zostupne
        - položka odpovede `{"id", "day", "minutes", "hourlyRate", "earnings"}`; `GET /{id}` 200 alebo 404
-     - [ ] 2.8.3 Vytvorenie plánu: `POST /api/plans`, `GET /api/plans/{id}`
+     - [x] 2.8.3 Vytvorenie plánu: `POST /api/plans`, `GET /api/plans/{id}`
        - tabuľka `plan(id, user_id, window_from, window_to, essentials_count, created_at, updated_at)`, index (`user_id`, `window_from`)
        - tabuľka `budget_item(plan_id FK ON DELETE CASCADE, position, name, target_amount, target_currency)`, PK (`plan_id`, `position`); JPA `@ElementCollection` + `@Embeddable` + `@OrderColumn`
        - `POST {"window": {"from", "to"}, "items": [{"name", "target"}], "essentialsCount"}`, prázdny zoznam položiek povolený

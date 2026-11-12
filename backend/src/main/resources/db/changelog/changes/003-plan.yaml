@@ -1,0 +1,89 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-plan
+      author: taron
+      changes:
+        - createTable:
+            tableName: plan
+            remarks: Budget items funded by earnings within the earning window (both days included)
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: plan_pk
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: window_from
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: window_to
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: essentials_count
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamptz
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: plan
+            indexName: plan_user_window_from_idx
+            columns:
+              - column:
+                  name: user_id
+              - column:
+                  name: window_from
+        - createTable:
+            tableName: budget_item
+            remarks: Budget items of a plan in funding order (position starts at 0)
+            columns:
+              - column:
+                  name: plan_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: budget_item_plan_fk
+                    references: plan(id)
+                    deleteCascade: true
+              - column:
+                  name: position
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: target_amount
+                  type: numeric(12, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: target_currency
+                  type: char(3)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: budget_item
+            columnNames: plan_id, position
+            constraintName: budget_item_pk
