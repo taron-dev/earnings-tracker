@@ -83,6 +83,29 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
        - záznamy práce v odpovedi nie sú (klient ich načíta cez `GET /api/work-logs` s oknom plánu)
        - prázdny plán: mena EUR
 3. **Záznam práce a prehľad plánu** vo Flutteri. Od tohto bodu aplikáciu reálne používam.
+   Spoločné pre všetky podkroky (každý má vlastný commit a testy):
+   - prvý plán cez `POST /api/plans` (curl), UI na tvorbu plánu až v kroku 4; sadzba má v kroku 3 vlastnú obrazovku
+   - stav cez `flutter_riverpod` bez generovania kódu; po zápise `ref.invalidate` prehľadu aj zoznamu
+   - modely s ručným `fromJson`/`toJson`, bez `json_serializable` a `build_runner`
+   - `Money` ako `int minorUnits` + `int scale` (scale prečítaný z reťazca API), zaokrúhlenie `HALF_UP` ako na serveri, bez balíka `decimal`
+   - `intl` + `flutter_localizations`, locale `sk`, týždeň od pondelka; sumy bez nulových centov (`750 €`, `262,50 €`)
+   - testy: TDD na unit testy (`Money`, `fromJson`, počet dní), widget testy obrazoviek s falošným API cez `ProviderScope(overrides: ...)`
+   - routing `StatefulShellRoute`: `/overview` a `/work-logs` so spodnou navigáciou, `/settings` samostatne, `/login`; `/` presmeruje na `/overview`
+   - chyby: zlyhané načítanie ukáže „Skúsiť znova“, zlyhané uloženie nechá panel otvorený s hodnotami, 401 odhlási s hláškou „Prihlásenie vypršalo“
+   - [ ] 3.1 Základy: závislosti, locale `sk`, `ProviderScope`, `apiClient` ako provider; `Money` cez TDD (parsovanie, scale, náhľad zárobku z minút a sadzby s prípadmi z backendového `HourlyRateTest`, formát)
+   - [ ] 3.2 Kostra navigácie: `StatefulShellRoute` s prázdnymi `/overview` a `/work-logs`, spodná navigácia, `/settings` s účtom a odhlásením, 401 → `/login`; odstrániť `HomePage` („Hello, user“), backendový `/api/hello` ostáva
+   - [ ] 3.3 Hodinová sadzba: `GET`/`PUT /api/hourly-rate`, formulár v Nastaveniach s upozornením „Nová sadzba platí len pre práce zapísané odteraz“
+   - [ ] 3.4 Prehľad: `overview?date=` lokálny dnešok
+     - hlavička: okno, „ešte N dní“ (počítané na klientovi), zarobené, sadzba malým písmom (ťuk → Nastavenia)
+     - karta najbližšieho cieľa (položka, chýba €, h a min); plne pokrytý plán „Všetko pokryté ✓“, prázdny „Plán nemá položky“
+     - položky s pruhom v sekciách ZÁKLAD (s príznakom pokrytý/nepokrytý) a EXTRA; nepriradený zárobok iba keď > 0
+     - 409 `hourly-rate-not-set`: „Najprv nastav svoju hodinovú sadzbu“ + tlačidlo; 404: „Dnešok nepatrí do žiadneho plánu“ s vysvetlením, že práca sa započíta neskôr
+   - [ ] 3.5 Zoznam záznamov: okno aktuálneho plánu (bez listovania), súčet hodín a zárobku; bez plánu posledných 30 dní a hláška
+   - [ ] 3.6 Zápis práce: spodný panel, „+“ na oboch záložkách (bez sadzby vedie do Nastavení)
+     - deň predvolený na dnes, ťuk otvorí kalendár; rýchle voľby 1, 2, 4, 6, 8 h; pole h a min
+     - živý náhľad „= 260 € pri 40 €/h“; validácia 1 min až 24 h, inak Uložiť neaktívne
+   - [ ] 3.7 Úprava a zmazanie: ťuk na riadok otvorí ten istý panel s pôvodnou sadzbou záznamu; 🗑 s potvrdzovacím dialógom, bez „Späť“ (opätovný `POST` by zmenil sadzbu)
+   - [ ] 3.8 Nasadenie a začiatok používania: GitHub Pages, prvý reálny plán cez curl, sadzba v UI, prvý zápis naživo; hotové, keď sa na produkcii po zápise pohne najbližší cieľ
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
 6. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
