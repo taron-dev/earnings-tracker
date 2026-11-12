@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
@@ -20,7 +22,7 @@ Future<void> main() async {
     return;
   }
 
-  runApp(const EarningsTrackerApp());
+  runApp(const ProviderScope(child: EarningsTrackerApp()));
 }
 
 class _StartupErrorApp extends StatelessWidget {
@@ -52,6 +54,10 @@ class EarningsTrackerApp extends StatelessWidget {
       title: 'Earnings Tracker',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal)),
       routerConfig: router,
+      // Slovak only for now; flutter_localizations makes the date picker Slovak and start weeks on Monday.
+      locale: const Locale('sk'),
+      supportedLocales: const [Locale('sk')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
     );
   }
 }

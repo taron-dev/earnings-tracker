@@ -1,22 +1,23 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../api/api_client.dart';
 
 /// Walking-skeleton screen: shows the greeting returned by GET /api/hello.
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   late final Future<String> _greeting = _loadGreeting();
 
   Future<String> _loadGreeting() async {
-    final response = await apiClient.get<Map<String, dynamic>>('/api/hello');
+    final response = await ref.read(apiClientProvider).get<Map<String, dynamic>>('/api/hello');
     return response.data!['message'] as String;
   }
 
