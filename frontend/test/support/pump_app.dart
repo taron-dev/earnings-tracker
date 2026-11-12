@@ -32,7 +32,7 @@ Future<GoRouter> pumpApp(
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
-  final router = GoRouter(initialLocation: location, routes: appRoutes);
+  final router = GoRouter(navigatorKey: rootNavigatorKey, initialLocation: location, routes: appRoutes);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [

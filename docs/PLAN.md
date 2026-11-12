@@ -129,14 +129,14 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - detail `/plans/:id` z dát zoznamu: okno, zarobené, položky v sekciách ZÁKLAD a EXTRA s pruhmi, nepriradený zárobok iba keď > 0; bez najbližšieho cieľa a sadzby
      - plán nie je v zozname: „Plán neexistuje“ s odkazom na zoznam
      - ťuk na okno v hlavičke Prehľadu otvorí detail bežiaceho plánu
-   - [ ] 4.4 Nový plán: `/plans/new` na celú obrazovku, „+ Nový plán“ v záložke Plány
+   - [x] 4.4 Nový plán: `/plans/new` na celú obrazovku, „+ Nový plán“ v záložke Plány
      - jeden `ReorderableListView` (ťahá sa za ☰), hranica základu je samostatný ťahateľný riadok; `essentialsCount` = počet položiek nad ňou
      - riadok „Názov · 450 €“, ťuk otvorí dialóg (názov, suma, 🗑 bez potvrdenia); „+ Pridať položku“ pridá na koniec (EXTRA)
      - validácia: názov povinný (orezaný, max. 100), suma > 0 v rozsahu `@Digits(10,2)`; prázdny zoznam aj duplicitné názvy povolené
-     - predvyplnenie kópiou predošlého plánu (najneskorší `window.to`): položky, poradie, hranica; okno `od = predošlý.do + 1` s rovnakou dĺžkou; bez plánov prázdny formulár s oknom od dneška do konca mesiaca (TDD unit test)
+     - predvyplnenie kópiou predošlého plánu (najneskorší `window.to`): iba položky so sumami, poradie a hranica, okno nie; okno je na začiatku prázdne („Vyber okno“) a Uložiť je neaktívne, kým ho nevyberiem; bez plánov prázdny formulár (TDD unit test)
      - chyby: zlyhané uloženie nechá formulár s hodnotami, 409 „Okno sa prekrýva s iným plánom“ pri okne; odchod s neuloženými zmenami „Zahodiť zmeny?“
      - Prehľad: pri 404 tlačidlo „Vytvoriť plán“, pri „Plán nemá položky“ tlačidlo „Pridať položky“ (úprava)
-   - [ ] 4.5 Úprava a zmazanie
+   - [x] 4.5 Úprava a zmazanie
      - `/plans/:id/edit` ten istý formulár s `PUT`, Upraviť iba pri bežiacom a budúcom pláne
      - 🗑 s potvrdzovacím dialógom pri každom pláne
    - [ ] 4.6 Nasadenie: produkcia, odstrániť zmienky o curl (krok 3 a Známe obmedzenia), doplniť obmedzenie „minulý plán iba na čítanie len v UI“; hotové, keď na produkcii vytvorím ďalší plán kópiou bežiaceho, upravím bežiaci plán (napr. presuniem hranicu) a Prehľad zmenu ukáže

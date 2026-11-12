@@ -23,10 +23,10 @@ class OverviewPage extends ConsumerWidget {
       body: ref.watch(overviewProvider).when(
             data: (result) => switch (result) {
               OverviewFound(:final overview) => _OverviewBody(overview: overview),
-              NoPlanForToday() => const _Message(
+              NoPlanForToday() => _Message(
                   title: 'Dnešok nepatrí do žiadneho plánu.',
-                  detail: 'Vytváranie plánov príde čoskoro. Prácu môžeš zapisovať aj tak, '
-                      'započíta sa do plánu, ktorého okno bude dnešok obsahovať.',
+                  detail: 'Prácu môžeš zapisovať aj tak, započíta sa do plánu, ktorého okno bude dnešok obsahovať.',
+                  action: FilledButton(onPressed: () => context.go('/plans/new'), child: const Text('Vytvoriť plán')),
                 ),
               HourlyRateNotSet() => _Message(
                   title: 'Najprv nastav svoju hodinovú sadzbu.',
@@ -135,9 +135,14 @@ class _MilestoneCard extends StatelessWidget {
             if (milestone != null) ...[
               Text(overview.items[milestone.position].name, style: textTheme.titleLarge),
               Text('ešte ${formatMoney(milestone.missing)} · ${formatMinutes(milestone.minutesNeeded)}'),
-            ] else if (overview.items.isEmpty)
-              Text('Plán nemá položky', style: textTheme.titleLarge)
-            else
+            ] else if (overview.items.isEmpty) ...[
+              Text('Plán nemá položky', style: textTheme.titleLarge),
+              const SizedBox(height: 8),
+              FilledButton.tonal(
+                onPressed: () => context.go('/plans/${overview.planId}/edit'),
+                child: const Text('Pridať položky'),
+              ),
+            ] else
               Text('Všetko pokryté ✓', style: textTheme.titleLarge),
           ],
         ),

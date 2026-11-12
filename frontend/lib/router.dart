@@ -9,6 +9,7 @@ import 'auth/login_page.dart';
 
 /// Signed-out users always land on /login, signed-in users never see it.
 final router = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: '/',
   refreshListenable: _AuthStateListenable(
     Supabase.instance.client.auth.onAuthStateChange,

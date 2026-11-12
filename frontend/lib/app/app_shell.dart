@@ -25,6 +25,7 @@ class AppShell extends ConsumerWidget {
       floatingActionButton: onPlans
           ? null
           : FloatingActionButton(
+              heroTag: null,
               tooltip: 'Zapísať prácu',
               onPressed: () => rateMissing ? context.push('/settings') : showWorkLogSheet(context),
               child: const Icon(Icons.add),

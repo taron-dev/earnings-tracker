@@ -15,10 +15,18 @@ class PlansPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('Plány'), actions: const [SettingsButton()]),
+      floatingActionButton: FloatingActionButton.extended(
+        // No hero: the shell's own button can be in the same route during a tab switch.
+        heroTag: null,
+        icon: const Icon(Icons.add),
+        label: const Text('Nový plán'),
+        onPressed: () => context.go('/plans/new'),
+      ),
       body: ref.watch(plansProvider).when(
             data: (plans) => plans.isEmpty
                 ? const PlansMessage(title: 'Zatiaľ nemáš žiadny plán.')
                 : ListView(
+                    padding: const EdgeInsets.only(bottom: 88),
                     children: [
                       for (final plan in plans)
                         ListTile(

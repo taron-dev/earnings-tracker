@@ -157,6 +157,27 @@ void main() {
 
     expect(find.text('Dnešok nepatrí do žiadneho plánu.'), findsOneWidget);
     expect(find.textContaining('započíta'), findsOneWidget);
+    expect(find.textContaining('čoskoro'), findsNothing);
+  });
+
+  testWidgets('offers to create a plan when today is outside every plan', (tester) async {
+    final router = await pumpApp(tester, overviewApi: FakePlanOverviewApi(const NoPlanForToday()));
+
+    await tester.tap(find.text('Vytvoriť plán'));
+    await tester.pumpAndSettle();
+
+    expect(currentPath(router), '/plans/new');
+  });
+
+  testWidgets('offers to add items to a plan without any', (tester) async {
+    final empty = overviewJson(essentialsCount: 0, items: [], essentialsCovered: true, nextMilestone: null);
+    final router = await pumpApp(tester, overviewApi: FakePlanOverviewApi(overviewFrom(empty)));
+
+    await tester.tap(find.text('Pridať položky'));
+    await tester.pumpAndSettle();
+
+    expect(currentPath(router), '/plans/$defaultPlanId/edit');
+    expect(find.widgetWithText(AppBar, 'Upraviť plán'), findsOneWidget);
   });
 
   testWidgets('offers a retry when loading fails', (tester) async {
