@@ -1,16 +1,22 @@
 import 'package:earnings_tracker/app/app_routes.dart';
 import 'package:earnings_tracker/auth/auth_providers.dart';
+import 'package:earnings_tracker/hourly_rate/hourly_rate_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+
+import '../support/fake_hourly_rate_api.dart';
 
 /// Builds the app's routes without the Supabase sign-in redirect and without Supabase itself.
 Future<GoRouter> pumpApp(WidgetTester tester, {String location = '/'}) async {
   final router = GoRouter(initialLocation: location, routes: appRoutes);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [signedInEmailProvider.overrideWithValue('jana@example.com')],
+      overrides: [
+        signedInEmailProvider.overrideWithValue('jana@example.com'),
+        hourlyRateApiProvider.overrideWithValue(FakeHourlyRateApi()),
+      ],
       child: MaterialApp.router(routerConfig: router),
     ),
   );

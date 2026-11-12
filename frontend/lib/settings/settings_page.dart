@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../auth/auth_providers.dart';
+import 'hourly_rate_form.dart';
 
-/// Account settings; the hourly rate form joins in plan step 3.3.
+/// Hourly rate and account.
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -16,6 +17,8 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          const HourlyRateSection(),
+          const Divider(height: 32),
           if (email != null) Text('Prihlásený: $email'),
           const SizedBox(height: 8),
           Align(

@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import 'money.dart';
+import 'money_input.dart' show parseEurInput;
 
 /// Formats [money] for Slovak users, omitting zero cents: `750 €`, `262,50 €`.
 String formatMoney(Money money) {
@@ -22,4 +23,14 @@ int _pow10(int exponent) {
     result *= 10;
   }
   return result;
+}
+
+/// Formats [money] for an input field: no currency sign or thousands separator, zero cents
+/// omitted (`40`, `40,50`), so [parseEurInput] reads it back.
+String formatMoneyInput(Money money) {
+  final divisor = _pow10(money.scale);
+  final whole = money.minorUnits ~/ divisor;
+  final fraction = money.minorUnits % divisor;
+  if (fraction == 0) return '$whole';
+  return '$whole,${fraction.toString().padLeft(money.scale, '0')}';
 }
