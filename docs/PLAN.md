@@ -139,7 +139,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 4.5 Úprava a zmazanie
      - `/plans/:id/edit` ten istý formulár s `PUT`, Upraviť iba pri bežiacom a budúcom pláne
      - 🗑 s potvrdzovacím dialógom pri každom pláne
-   - [ ] 4.6 Nasadenie: produkcia, odstrániť zmienky o curl (krok 3 a Známe obmedzenia), doplniť obmedzenie „minulý plán iba na čítanie len v UI“; hotové, keď na produkcii vytvorím ďalší plán kópiou bežiaceho, upravím bežiaci plán (napr. presuniem hranicu) a Prehľad zmenu ukáže
+   - [x] 4.6 Nasadenie: produkcia, odstrániť zmienky o curl (krok 3 a Známe obmedzenia), doplniť obmedzenie „minulý plán iba na čítanie len v UI“; hotové, keď na produkcii vytvorím ďalší plán kópiou bežiaceho, upravím bežiaci plán (napr. presuniem hranicu) a Prehľad zmenu ukáže
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
 6. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
 
