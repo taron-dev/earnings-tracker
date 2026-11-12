@@ -95,7 +95,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 3.1 Základy: závislosti, locale `sk`, `ProviderScope`, `apiClient` ako provider; `Money` cez TDD (parsovanie, scale, náhľad zárobku z minút a sadzby s prípadmi z backendového `HourlyRateTest`, formát)
    - [x] 3.2 Kostra navigácie: `StatefulShellRoute` s prázdnymi `/overview` a `/work-logs`, spodná navigácia, `/settings` s účtom a odhlásením, 401 → `/login`; odstrániť `HomePage` („Hello, user“), backendový `/api/hello` ostáva
    - [x] 3.3 Hodinová sadzba: `GET`/`PUT /api/hourly-rate`, formulár v Nastaveniach s upozornením „Nová sadzba platí len pre práce zapísané odteraz“
-   - [ ] 3.4 Prehľad: `overview?date=` lokálny dnešok
+   - [x] 3.4 Prehľad: `overview?date=` lokálny dnešok
      - hlavička: okno, „ešte N dní“ (počítané na klientovi), zarobené, sadzba malým písmom (ťuk → Nastavenia)
      - karta najbližšieho cieľa (položka, chýba €, h a min); plne pokrytý plán „Všetko pokryté ✓“, prázdny „Plán nemá položky“
      - položky s pruhom v sekciách ZÁKLAD (s príznakom pokrytý/nepokrytý) a EXTRA; nepriradený zárobok iba keď > 0

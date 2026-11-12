@@ -4,14 +4,17 @@ import 'money.dart';
 import 'money_input.dart' show parseEurInput;
 
 /// Formats [money] for Slovak users, omitting zero cents: `750 €`, `262,50 €`.
-String formatMoney(Money money) {
+String formatMoney(Money money) =>
+    _format(money, (decimalDigits) => NumberFormat.simpleCurrency(locale: 'sk', name: money.currency, decimalDigits: decimalDigits));
+
+/// Like [formatMoney] without the currency sign, for `580 / 750 €`.
+String formatAmount(Money money) =>
+    _format(money, (decimalDigits) => NumberFormat.decimalPatternDigits(locale: 'sk', decimalDigits: decimalDigits));
+
+String _format(Money money, NumberFormat Function(int decimalDigits) formatWith) {
   final divisor = _pow10(money.scale);
   final hasFraction = money.minorUnits % divisor != 0;
-  final format = NumberFormat.simpleCurrency(
-    locale: 'sk',
-    name: money.currency,
-    decimalDigits: hasFraction ? money.scale : 0,
-  );
+  final format = formatWith(hasFraction ? money.scale : 0);
   // Converting to double is only for display: printed with exactly `scale` digits, any
   // realistic amount comes back exact. All arithmetic stays in integer minor units.
   return hasFraction ? format.format(money.minorUnits / divisor) : format.format(money.minorUnits ~/ divisor);

@@ -5,6 +5,7 @@ import '../hourly_rate/hourly_rate_api.dart';
 import '../money/hourly_rate.dart';
 import '../money/money_format.dart';
 import '../money/money_input.dart';
+import '../overview/plan_overview_api.dart';
 
 /// Loads the current hourly rate and lets the user change it.
 class HourlyRateSection extends ConsumerWidget {
@@ -58,6 +59,8 @@ class _HourlyRateFormState extends ConsumerState<HourlyRateForm> {
     try {
       await ref.read(hourlyRateApiProvider).save(rate);
       ref.invalidate(hourlyRateProvider);
+      // The next milestone in hours depends on the rate, and a first rate replaces the 409 state.
+      ref.invalidate(overviewProvider);
       message = 'Sadzba uložená.';
     } catch (_) {
       // The typed value stays in the field, so saving again is one tap.

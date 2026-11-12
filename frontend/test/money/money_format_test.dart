@@ -23,4 +23,11 @@ void main() {
       expect(formatMoney(eur('12345.67')), '12${nbsp}345,67$nbsp€');
     });
   });
+
+  group('formatAmount', () {
+    test('formats like formatMoney without the currency sign', () {
+      expect(formatAmount(eur('1200.00')), '1${nbsp}200');
+      expect(formatAmount(eur('580.50')), '580,50');
+    });
+  });
 }

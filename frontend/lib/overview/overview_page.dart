@@ -1,17 +1,200 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../app/today.dart';
+import '../format/date_format.dart';
+import '../format/time_format.dart';
+import '../hourly_rate/hourly_rate_api.dart';
+import '../money/money_format.dart';
 import '../settings/settings_page.dart';
+import 'plan_overview.dart';
+import 'plan_overview_api.dart';
 
-/// Plan overview tab; filled in by plan step 3.4.
-class OverviewPage extends StatelessWidget {
+/// Where today's plan stands: what is covered and how many hours to the next milestone.
+class OverviewPage extends ConsumerWidget {
   const OverviewPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Prehľad'),
-        actions: const [SettingsButton()],
+      appBar: AppBar(title: const Text('Prehľad'), actions: const [SettingsButton()]),
+      body: ref.watch(overviewProvider).when(
+            data: (result) => switch (result) {
+              OverviewFound(:final overview) => _OverviewBody(overview: overview),
+              NoPlanForToday() => const _Message(
+                  title: 'Dnešok nepatrí do žiadneho plánu.',
+                  detail: 'Vytváranie plánov príde čoskoro. Prácu môžeš zapisovať aj tak, '
+                      'započíta sa do plánu, ktorého okno bude dnešok obsahovať.',
+                ),
+              HourlyRateNotSet() => _Message(
+                  title: 'Najprv nastav svoju hodinovú sadzbu.',
+                  action: FilledButton(onPressed: () => context.push('/settings'), child: const Text('Nastaviť sadzbu')),
+                ),
+            },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => _Message(
+              title: 'Nepodarilo sa načítať prehľad. Skontroluj pripojenie.',
+              action: TextButton(onPressed: () => ref.invalidate(overviewProvider), child: const Text('Skúsiť znova')),
+            ),
+          ),
+    );
+  }
+}
+
+/// A centered explanation of why there is nothing to show, with an optional way out.
+class _Message extends StatelessWidget {
+  const _Message({required this.title, this.detail, this.action});
+
+  final String title;
+  final String? detail;
+  final Widget? action;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+            if (detail != null) ...[const SizedBox(height: 8), Text(detail!, textAlign: TextAlign.center)],
+            if (action != null) ...[const SizedBox(height: 16), action!],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _OverviewBody extends ConsumerWidget {
+  const _OverviewBody({required this.overview});
+
+  final PlanOverview overview;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textTheme = Theme.of(context).textTheme;
+    final rate = ref.watch(hourlyRateProvider).value;
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text(formatWindow(overview.windowFrom, overview.windowTo), style: textTheme.titleMedium),
+        Text(daysLeftLabel(overview.windowTo, ref.watch(todayProvider)), style: textTheme.bodySmall),
+        const SizedBox(height: 12),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Expanded(child: Text('Zarobené ${formatMoney(overview.earnings)}', style: textTheme.headlineSmall)),
+            if (rate != null)
+              TextButton(
+                onPressed: () => context.push('/settings'),
+                child: Text('${formatMoney(rate.perHour)} / h', style: textTheme.bodySmall),
+              ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _MilestoneCard(overview: overview),
+        ..._section(
+          context,
+          title: 'ZÁKLAD',
+          status: overview.essentialsCovered ? 'pokrytý' : 'nepokrytý',
+          items: overview.items.where((item) => item.essential),
+        ),
+        ..._section(context, title: 'EXTRA', items: overview.items.where((item) => !item.essential)),
+        if (overview.unassignedEarnings.minorUnits > 0) ...[
+          const SizedBox(height: 24),
+          Text('Nepriradené ${formatMoney(overview.unassignedEarnings)}', style: textTheme.titleMedium),
+          Text('Zárobok nad všetky položky, zatiaľ bez účelu.', style: textTheme.bodySmall),
+        ],
+      ],
+    );
+  }
+}
+
+/// A titled group of item rows; nothing at all when [items] is empty.
+List<Widget> _section(BuildContext context, {required String title, String? status, required Iterable<OverviewItem> items}) {
+  if (items.isEmpty) return const [];
+  final style = Theme.of(context).textTheme.labelLarge;
+  return [
+    const SizedBox(height: 24),
+    Row(
+      children: [
+        Expanded(child: Text(title, style: style)),
+        if (status != null) Text(status, style: style),
+      ],
+    ),
+    for (final item in items) _ItemRow(item: item),
+  ];
+}
+
+/// One Budget Item: state icon, name, amount and a bar of how much is funded.
+class _ItemRow extends StatelessWidget {
+  const _ItemRow({required this.item});
+
+  final OverviewItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    final (icon, amount) = switch (item.state) {
+      CoverageState.covered => (Icons.check_circle, formatMoney(item.target)),
+      CoverageState.inProgress => (Icons.timelapse, '${formatAmount(item.funded)} / ${formatMoney(item.target)}'),
+      CoverageState.uncovered => (Icons.radio_button_unchecked, formatMoney(item.target)),
+    };
+    final progress = item.target.minorUnits == 0 ? 1.0 : item.funded.minorUnits / item.target.minorUnits;
+    return Padding(
+      key: Key('item-${item.position}'),
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: Text(item.name)),
+              Text(amount),
+            ],
+          ),
+          const SizedBox(height: 6),
+          LinearProgressIndicator(value: progress),
+        ],
+      ),
+    );
+  }
+}
+
+/// The hours still needed for the next uncovered item, the number that motivates working.
+class _MilestoneCard extends StatelessWidget {
+  const _MilestoneCard({required this.overview});
+
+  final PlanOverview overview;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final milestone = overview.nextMilestone;
+    return Card.filled(
+      key: const Key('next-milestone'),
+      color: Theme.of(context).colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Najbližší cieľ', style: textTheme.labelLarge),
+            const SizedBox(height: 4),
+            if (milestone != null) ...[
+              Text(overview.items[milestone.position].name, style: textTheme.titleLarge),
+              Text('ešte ${formatMoney(milestone.missing)} · ${formatMinutes(milestone.minutesNeeded)}'),
+            ] else if (overview.items.isEmpty)
+              Text('Plán nemá položky', style: textTheme.titleLarge)
+            else
+              Text('Všetko pokryté ✓', style: textTheme.titleLarge),
+          ],
+        ),
       ),
     );
   }
