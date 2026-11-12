@@ -13,7 +13,12 @@ public interface PlanRepository extends JpaRepository<PlanEntity, UUID> {
 
     Optional<PlanEntity> findByIdAndUserId(UUID id, UUID userId);
 
+    boolean existsByIdAndUserId(UUID id, UUID userId);
+
     List<PlanWindow> findWindowsByUserId(UUID userId);
+
+    /** Windows of the user's other plans, for checking overlap when one plan is edited. */
+    List<PlanWindow> findWindowsByUserIdAndIdNot(UUID userId, UUID id);
 
     /** Newest first, items fetched in the same query. */
     @EntityGraph(attributePaths = "items")

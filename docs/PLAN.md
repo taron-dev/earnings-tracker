@@ -118,7 +118,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - výpočet zdieľaný s `overview` (ten navyše pridá najbližší cieľ)
      - zárobok jedným dotazom na záznamy práce v rozsahu min–max okien, rozdelenie podľa okien v pamäti
      - `GET /api/plans/{id}` ostáva len ako cieľ `Location`, Flutter ho nepoužíva
-   - [ ] 4.2 Backend `PUT` a `DELETE /api/plans/{id}`
+   - [x] 4.2 Backend `PUT` a `DELETE /api/plans/{id}`
      - `PUT` telo rovnaké ako `POST`, nahradí celý plán (okno, `essentialsCount`, položky v poslanom poradí), 200 + tvar tela
      - prekrytie okna voči ostatným plánom používateľa (bez upravovaného) 409; cudzí alebo neexistujúci 404
      - `DELETE` 204, cudzí alebo neexistujúci 404; záznamy práce ostávajú

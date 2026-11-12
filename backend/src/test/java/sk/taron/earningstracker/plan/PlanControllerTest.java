@@ -5,9 +5,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -155,10 +160,115 @@ class PlanControllerTest {
                 .andExpect(jsonPath("$.detail").value("Plan not found"));
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"POST", "PUT"})
+    void rejectsItemNameLongerThan100Characters(String method) throws Exception {
+        String body = """
+                {"window": {"from": "2026-12-01", "to": "2026-12-31"},
+                 "items": [{"name": "%s", "target": {"amount": "10.00", "currency": "EUR"}}],
+                 "essentialsCount": 0}
+                """.formatted("a".repeat(101));
+
+        mockMvc.perform(request(HttpMethod.valueOf(method), method.equals("POST") ? "/api/plans" : "/api/plans/" + PLAN.id())
+                        .with(userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON));
+
+        then(planService).shouldHaveNoInteractions();
+    }
+
     @Test
-    void rejectsRequestWithoutToken() throws Exception {
-        mockMvc.perform(get("/api/plans/{id}", PLAN.id()))
+    void acceptsItemNameOf100Characters() throws Exception {
+        given(planService.create(eq(USER_ID), any(Plan.class))).willReturn(PLAN);
+        String body = """
+                {"window": {"from": "2026-12-01", "to": "2026-12-31"},
+                 "items": [{"name": "%s", "target": {"amount": "10.00", "currency": "EUR"}}],
+                 "essentialsCount": 0}
+                """.formatted("a".repeat(100));
+
+        mockMvc.perform(post("/api/plans").with(userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void replacesPlan() throws Exception {
+        given(planService.update(eq(USER_ID), any(Plan.class))).willReturn(PLAN);
+
+        mockMvc.perform(put("/api/plans/{id}", PLAN.id()).with(userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(PLAN_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(PLAN.id().toString()))
+                .andExpect(jsonPath("$.window.from").value("2026-12-01"))
+                .andExpect(jsonPath("$.items.length()").value(2))
+                .andExpect(jsonPath("$.essentialsCount").value(1));
+
+        ArgumentCaptor<Plan> requested = ArgumentCaptor.forClass(Plan.class);
+        then(planService).should().update(eq(USER_ID), requested.capture());
+        assertThat(requested.getValue()).isEqualTo(PLAN);
+    }
+
+    @Test
+    void refusesReplacementOverlappingAnotherPlan() throws Exception {
+        given(planService.update(eq(USER_ID), any(Plan.class)))
+                .willThrow(new OverlappingPlanException("Earning window overlaps another plan"));
+
+        mockMvc.perform(put("/api/plans/{id}", PLAN.id()).with(userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(PLAN_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.type").value("/problems/overlapping-plan"));
+    }
+
+    @Test
+    void answersNotFoundWhenReplacingUnknownOrForeignPlan() throws Exception {
+        given(planService.update(eq(USER_ID), any(Plan.class))).willThrow(new NotFoundException("Plan not found"));
+
+        mockMvc.perform(put("/api/plans/{id}", PLAN.id()).with(userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(PLAN_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void rejectsInvalidReplacement() throws Exception {
+        mockMvc.perform(put("/api/plans/{id}", PLAN.id()).with(userToken())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"window\": {\"from\": \"2026-12-31\", \"to\": \"2026-12-01\"}, \"items\": [], \"essentialsCount\": 0}"))
+                .andExpect(status().isBadRequest());
+
+        then(planService).shouldHaveNoInteractions();
+    }
+
+    @Test
+    void deletesPlan() throws Exception {
+        mockMvc.perform(delete("/api/plans/{id}", PLAN.id()).with(userToken()))
+                .andExpect(status().isNoContent());
+
+        then(planService).should().delete(USER_ID, PLAN.id());
+    }
+
+    @Test
+    void answersNotFoundWhenDeletingUnknownOrForeignPlan() throws Exception {
+        willThrow(new NotFoundException("Plan not found")).given(planService).delete(USER_ID, PLAN.id());
+
+        mockMvc.perform(delete("/api/plans/{id}", PLAN.id()).with(userToken()))
+                .andExpect(status().isNotFound());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"GET", "PUT", "DELETE"})
+    void rejectsRequestWithoutToken(String method) throws Exception {
+        mockMvc.perform(request(HttpMethod.valueOf(method), "/api/plans/{id}", PLAN.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(PLAN_JSON))
                 .andExpect(status().isUnauthorized());
+
+        then(planService).shouldHaveNoInteractions();
     }
 
     private static RequestPostProcessor userToken() {
