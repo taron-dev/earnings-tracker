@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -115,6 +116,57 @@ class PlanOverviewServiceTest {
         assertThat(overview.coverage()).isEmpty();
         assertThat(overview.nextMilestone()).isEmpty();
         assertThat(overview.unassignedEarnings()).isEqualTo(eur("40"));
+    }
+
+    @Test
+    void listIsEmptyWithoutPlans() {
+        given(planRepository.findByUserIdOrderByWindowFromDesc(USER_ID)).willReturn(List.of());
+
+        assertThat(service.list(USER_ID)).isEmpty();
+        verifyNoInteractions(workLogService);
+    }
+
+    @Test
+    void listFundsEachPlanFromWorkLogsInItsOwnWindowWithoutHourlyRate() {
+        LocalDate nov1 = LocalDate.of(2026, 11, 1);
+        LocalDate nov20 = LocalDate.of(2026, 11, 20);
+        Plan november = Plan.create(new EarningWindow(nov1, nov20), List.of(TAXES), 1);
+        given(planRepository.findByUserIdOrderByWindowFromDesc(USER_ID))
+                .willReturn(List.of(mapper.from(PLAN, USER_ID), mapper.from(november, USER_ID)));
+        given(workLogService.list(USER_ID, nov1, DEC_31)).willReturn(List.of(
+                WorkLog.create(DEC_10, WorkedTime.of(2, 0), RATE),
+                WorkLog.create(LocalDate.of(2026, 11, 25), WorkedTime.of(5, 0), RATE),
+                WorkLog.create(LocalDate.of(2026, 11, 5), WorkedTime.of(3, 0), RATE)));
+
+        List<PlanOverview> overviews = service.list(USER_ID);
+
+        assertThat(overviews).extracting(PlanOverview::plan).containsExactly(PLAN, november);
+        PlanOverview december = overviews.get(0);
+        assertThat(december.earnings()).isEqualTo(eur("80.00"));
+        assertThat(december.coverage()).containsExactly(
+                new ItemCoverage(TAXES, eur("80")),
+                new ItemCoverage(RENT, eur("0")),
+                new ItemCoverage(VACATION, eur("0")));
+        assertThat(december.essentialsCovered()).isFalse();
+        assertThat(december.nextMilestone()).isEmpty();
+        PlanOverview past = overviews.get(1);
+        assertThat(past.earnings()).isEqualTo(eur("120.00"));
+        assertThat(past.essentialsCovered()).isTrue();
+        assertThat(past.nextMilestone()).isEmpty();
+        assertThat(past.unassignedEarnings()).isEqualTo(eur("20"));
+        verifyNoInteractions(hourlyRateService);
+    }
+
+    @Test
+    void listCountsEmptyPlanInEuro() {
+        Plan empty = Plan.create(DECEMBER, List.of(), 0);
+        given(planRepository.findByUserIdOrderByWindowFromDesc(USER_ID)).willReturn(List.of(mapper.from(empty, USER_ID)));
+        given(workLogService.list(USER_ID, DEC_1, DEC_31)).willReturn(List.of());
+
+        PlanOverview overview = service.list(USER_ID).getFirst();
+
+        assertThat(overview.earnings()).isEqualTo(eur("0"));
+        assertThat(overview.unassignedEarnings()).isEqualTo(eur("0"));
     }
 
     private void givenPlan(Plan plan) {

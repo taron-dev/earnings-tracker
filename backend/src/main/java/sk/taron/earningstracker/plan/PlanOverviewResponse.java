@@ -18,6 +18,7 @@ import sk.taron.earningstracker.domain.NextMilestone;
 public record PlanOverviewResponse(
         UUID planId,
         EarningWindowDto window,
+        int essentialsCount,
         MoneyDto earnings,
         boolean essentialsCovered,
         List<ItemCoverageDto> items,
@@ -44,6 +45,7 @@ public record PlanOverviewResponse(
         return new PlanOverviewResponse(
                 overview.plan().id(),
                 EarningWindowDto.from(overview.plan().window()),
+                essentialsCount,
                 MoneyDto.from(overview.earnings()),
                 overview.essentialsCovered(),
                 items,

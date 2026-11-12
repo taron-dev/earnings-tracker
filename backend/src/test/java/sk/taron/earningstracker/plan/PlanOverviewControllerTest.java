@@ -74,6 +74,7 @@ class PlanOverviewControllerTest {
                 .andExpect(jsonPath("$.planId").value(PLAN.id().toString()))
                 .andExpect(jsonPath("$.window.from").value("2026-12-01"))
                 .andExpect(jsonPath("$.window.to").value("2026-12-31"))
+                .andExpect(jsonPath("$.essentialsCount").value(2))
                 .andExpect(jsonPath("$.earnings.amount").value("150.00"))
                 .andExpect(jsonPath("$.essentialsCovered").value(false))
                 .andExpect(jsonPath("$.items.length()").value(3))
@@ -136,8 +137,50 @@ class PlanOverviewControllerTest {
     }
 
     @Test
-    void rejectsRequestWithoutToken() throws Exception {
-        mockMvc.perform(get("/api/plans/current/overview").param("date", "2026-12-10"))
+    void listsPlansWithCoverageAndWithoutNextMilestone() throws Exception {
+        Plan november = Plan.create(new EarningWindow(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 30)),
+                List.of(VACATION), 0);
+        given(planOverviewService.list(USER_ID)).willReturn(List.of(
+                new PlanOverview(PLAN, eur("120"),
+                        List.of(new ItemCoverage(SAVINGS, eur("100")), new ItemCoverage(SAVINGS, eur("20")),
+                                new ItemCoverage(VACATION, eur("0"))),
+                        false, Optional.empty(), eur("0")),
+                new PlanOverview(november, eur("80"), List.of(new ItemCoverage(VACATION, eur("50"))), true,
+                        Optional.empty(), eur("30"))));
+
+        mockMvc.perform(get("/api/plans").with(userToken()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].planId").value(PLAN.id().toString()))
+                .andExpect(jsonPath("$[0].window.from").value("2026-12-01"))
+                .andExpect(jsonPath("$[0].essentialsCount").value(2))
+                .andExpect(jsonPath("$[0].earnings.amount").value("120.00"))
+                .andExpect(jsonPath("$[0].essentialsCovered").value(false))
+                .andExpect(jsonPath("$[0].items.length()").value(3))
+                .andExpect(jsonPath("$[0].items[1].funded.amount").value("20.00"))
+                .andExpect(jsonPath("$[0].items[1].state").value("IN_PROGRESS"))
+                .andExpect(jsonPath("$[0].items[2].essential").value(false))
+                .andExpect(jsonPath("$[1].planId").value(november.id().toString()))
+                .andExpect(jsonPath("$[1].essentialsCount").value(0))
+                .andExpect(jsonPath("$[1].unassignedEarnings.amount").value("30.00"))
+                .andExpect(content().json("""
+                        [{"nextMilestone": null}, {"nextMilestone": null}]
+                        """));
+    }
+
+    @Test
+    void listsNoPlans() throws Exception {
+        given(planOverviewService.list(USER_ID)).willReturn(List.of());
+
+        mockMvc.perform(get("/api/plans").with(userToken()))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/api/plans/current/overview?date=2026-12-10", "/api/plans"})
+    void rejectsRequestWithoutToken(String url) throws Exception {
+        mockMvc.perform(get(url))
                 .andExpect(status().isUnauthorized());
     }
 

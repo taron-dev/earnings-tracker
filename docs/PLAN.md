@@ -112,7 +112,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - minulý plán (okno skončilo) je v UI iba na čítanie, backend to nevynucuje (o dnešku rozhoduje klient); zmazať sa dá aj minulý plán
    - okno sa pri úprave dá voľne meniť, jediné pravidlo je prekrytie s iným plánom (409), bez varovaní o vyradených záznamoch
    - po `POST`, `PUT` aj `DELETE` `ref.invalidate` zoznamu plánov aj Prehľadu
-   - [ ] 4.1 Backend `GET /api/plans`: zoznam s pokrytím
+   - [x] 4.1 Backend `GET /api/plans`: zoznam s pokrytím
      - každý prvok v tvare `overview` bez najbližšieho cieľa: `planId`, `window`, `essentialsCount`, `earnings`, `essentialsCovered`, `items[]` (`position`, `name`, `target`, `funded`, `state`, `essential`), `unassignedEarnings`
      - nepotrebuje sadzbu (žiadne 409), zoradené podľa `window.from` zostupne, bez stránkovania
      - výpočet zdieľaný s `overview` (ten navyše pridá najbližší cieľ)

@@ -1,6 +1,7 @@
 package sk.taron.earningstracker.plan;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,6 +28,21 @@ public class PlanOverviewController {
     @GetMapping("/api/plans/current/overview")
     public PlanOverviewResponse overview(@AuthenticationPrincipal Jwt jwt,
                                          @RequestParam @DateTimeFormat(iso = ISO.DATE) LocalDate date) {
-        return PlanOverviewResponse.from(planOverviewService.overview(UUID.fromString(jwt.getSubject()), date));
+        return PlanOverviewResponse.from(planOverviewService.overview(userId(jwt), date));
+    }
+
+    /**
+     * All plans with their coverage, newest first. The shape is the overview's, with
+     * {@code nextMilestone} always {@code null}, so no hourly rate is needed.
+     */
+    @GetMapping("/api/plans")
+    public List<PlanOverviewResponse> list(@AuthenticationPrincipal Jwt jwt) {
+        return planOverviewService.list(userId(jwt)).stream()
+                .map(PlanOverviewResponse::from)
+                .toList();
+    }
+
+    private static UUID userId(Jwt jwt) {
+        return UUID.fromString(jwt.getSubject());
     }
 }
