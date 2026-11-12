@@ -31,6 +31,19 @@ class WorkLogApi {
     );
     return WorkLog.fromJson(response.data!);
   }
+
+  /// Moves a work log to another day or changes its time; its Hourly Rate stays as recorded.
+  Future<WorkLog> update(String id, DateTime day, int minutes) async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '/api/work-logs/$id',
+      data: {'day': isoDate(day), 'minutes': minutes},
+    );
+    return WorkLog.fromJson(response.data!);
+  }
+
+  Future<void> delete(String id) async {
+    await _dio.delete<void>('/api/work-logs/$id');
+  }
 }
 
 final workLogApiProvider = Provider((ref) => WorkLogApi(ref.watch(apiClientProvider)));

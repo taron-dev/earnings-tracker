@@ -43,4 +43,26 @@ void main() {
     expect(log.id, 'n1');
     expect(log.earnings.toJson(), eurJson('260.00'));
   });
+
+  test('changes the day and time of a work log', () async {
+    final adapter = FakeHttpAdapter((_) => (status: 200, body: workLogJson('a1', '2026-11-10', 120, '80.00')));
+
+    final log = await WorkLogApi(fakeDio(adapter)).update('a1', DateTime(2026, 11, 10), 120);
+
+    final request = adapter.requests.single;
+    expect(request.method, 'PUT');
+    expect(request.path, '/api/work-logs/a1');
+    expect(request.data, {'day': '2026-11-10', 'minutes': 120});
+    expect(log.minutes, 120);
+  });
+
+  test('deletes a work log', () async {
+    final adapter = FakeHttpAdapter((_) => (status: 204, body: null));
+
+    await WorkLogApi(fakeDio(adapter)).delete('a1');
+
+    final request = adapter.requests.single;
+    expect(request.method, 'DELETE');
+    expect(request.path, '/api/work-logs/a1');
+  });
 }

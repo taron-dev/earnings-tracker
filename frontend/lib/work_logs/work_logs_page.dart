@@ -8,6 +8,7 @@ import '../overview/plan_overview_api.dart';
 import '../settings/settings_page.dart';
 import 'work_log.dart';
 import 'work_log_api.dart';
+import 'work_log_sheet.dart';
 
 /// Work logs of today's plan, newest first, with their total.
 class WorkLogsPage extends ConsumerWidget {
@@ -73,15 +74,18 @@ class _WorkLogList extends StatelessWidget {
           const Divider(height: 24),
         ],
         for (final log in logs)
-          Padding(
+          InkWell(
             key: Key('work-log-${log.id}'),
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Row(
-              children: [
-                SizedBox(width: 96, child: Text(formatDay(log.day))),
-                Expanded(child: Text(formatMinutes(log.minutes))),
-                Text(formatMoney(log.earnings)),
-              ],
+            onTap: () => showWorkLogSheet(context, existing: log),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Row(
+                children: [
+                  SizedBox(width: 96, child: Text(formatDay(log.day))),
+                  Expanded(child: Text(formatMinutes(log.minutes))),
+                  Text(formatMoney(log.earnings)),
+                ],
+              ),
             ),
           ),
       ],

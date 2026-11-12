@@ -41,6 +41,34 @@ class FakeWorkLogApi implements WorkLogApi {
     logs = [log, ...logs];
     return log;
   }
+
+  /// Ids, days and minutes passed to [update], in order.
+  final List<(String, DateTime, int)> updated = [];
+  final List<String> deleted = [];
+  bool failDeleting = false;
+
+  @override
+  Future<WorkLog> update(String id, DateTime day, int minutes) async {
+    if (failSaving) throw Exception('backend down');
+    updated.add((id, day, minutes));
+    final original = logs.firstWhere((log) => log.id == id);
+    final log = WorkLog(
+      id: id,
+      day: day,
+      minutes: minutes,
+      hourlyRate: original.hourlyRate,
+      earnings: original.hourlyRate.earningsFor(minutes),
+    );
+    logs = [for (final each in logs) each.id == id ? log : each];
+    return log;
+  }
+
+  @override
+  Future<void> delete(String id) async {
+    if (failDeleting) throw Exception('backend down');
+    deleted.add(id);
+    logs = logs.where((log) => log.id != id).toList();
+  }
 }
 
 WorkLog workLog(String id, String day, int minutes, String earnings) =>

@@ -104,7 +104,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
    - [x] 3.6 Zápis práce: spodný panel, „+“ na oboch záložkách (bez sadzby vedie do Nastavení)
      - deň predvolený na dnes, ťuk otvorí kalendár; rýchle voľby 1, 2, 4, 6, 8 h; pole h a min
      - živý náhľad „= 260 € pri 40 €/h“; validácia 1 min až 24 h, inak Uložiť neaktívne
-   - [ ] 3.7 Úprava a zmazanie: ťuk na riadok otvorí ten istý panel s pôvodnou sadzbou záznamu; 🗑 s potvrdzovacím dialógom, bez „Späť“ (opätovný `POST` by zmenil sadzbu)
+   - [x] 3.7 Úprava a zmazanie: ťuk na riadok otvorí ten istý panel s pôvodnou sadzbou záznamu; 🗑 s potvrdzovacím dialógom, bez „Späť“ (opätovný `POST` by zmenil sadzbu)
    - [ ] 3.8 Nasadenie a začiatok používania: GitHub Pages, prvý reálny plán cez curl, sadzba v UI, prvý zápis naživo; hotové, keď sa na produkcii po zápise pohne najbližší cieľ
 4. **Tvorba a úprava plánu** (nový plán ako kópia predošlého) a zoznam plánov vrátane minulých.
 5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.

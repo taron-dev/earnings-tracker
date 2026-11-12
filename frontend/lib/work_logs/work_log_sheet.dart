@@ -7,28 +7,32 @@ import '../format/time_format.dart';
 import '../hourly_rate/hourly_rate_api.dart';
 import '../money/money_format.dart';
 import '../overview/plan_overview_api.dart';
+import 'work_log.dart';
 import 'work_log_api.dart';
 
-/// Opens the bottom sheet for recording work, today preselected.
-Future<void> showWorkLogSheet(BuildContext context) => showModalBottomSheet<void>(
+/// Opens the bottom sheet for recording work, today preselected, or for editing [existing].
+Future<void> showWorkLogSheet(BuildContext context, {WorkLog? existing}) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
-  builder: (context) => const WorkLogSheet(),
+  builder: (context) => WorkLogSheet(existing: existing),
 );
 
 /// Day, worked time and a live earnings preview; one tap on a quick choice for a usual day.
 class WorkLogSheet extends ConsumerStatefulWidget {
-  const WorkLogSheet({super.key});
+  const WorkLogSheet({super.key, this.existing});
+
+  /// The work log being edited; null when recording a new one.
+  final WorkLog? existing;
 
   @override
   ConsumerState<WorkLogSheet> createState() => _WorkLogSheetState();
 }
 
 class _WorkLogSheetState extends ConsumerState<WorkLogSheet> {
-  late DateTime _day = ref.read(todayProvider);
-  final _hours = TextEditingController();
-  final _minutes = TextEditingController();
+  late DateTime _day = widget.existing?.day ?? ref.read(todayProvider);
+  late final _hours = TextEditingController(text: widget.existing == null ? '' : '${widget.existing!.minutes ~/ 60}');
+  late final _minutes = TextEditingController(text: widget.existing == null ? '' : '${widget.existing!.minutes % 60}');
 
   static const _quickHours = [1, 2, 4, 6, 8];
 
@@ -58,15 +62,17 @@ class _WorkLogSheetState extends ConsumerState<WorkLogSheet> {
       _error = null;
     });
     try {
-      final log = await ref.read(workLogApiProvider).record(_day, minutes);
-      ref.invalidate(overviewProvider);
-      ref.invalidate(workLogsProvider);
-      if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
-      Navigator.of(context).pop();
-      messenger.showSnackBar(
-        SnackBar(content: Text('Zapísané ${formatMinutes(log.minutes)} · ${formatMoney(log.earnings)}')),
-      );
+      final api = ref.read(workLogApiProvider);
+      final existing = widget.existing;
+      final String confirmation;
+      if (existing == null) {
+        final log = await api.record(_day, minutes);
+        confirmation = 'Zapísané ${formatMinutes(log.minutes)} · ${formatMoney(log.earnings)}';
+      } else {
+        await api.update(existing.id, _day, minutes);
+        confirmation = 'Záznam upravený.';
+      }
+      _closeWith(confirmation);
     } catch (_) {
       // The sheet stays open with what was typed, so saving again is one tap.
       if (!mounted) return;
@@ -77,13 +83,56 @@ class _WorkLogSheetState extends ConsumerState<WorkLogSheet> {
     }
   }
 
-  /// Work is recorded after it is done: from a year back up to today.
+  /// Deletes [log] once the user confirms; there is no undo, because recording it again
+  /// would attach the current rate instead of the original one.
+  Future<void> _delete(WorkLog log) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Zmazať záznam?'),
+        content: Text('${formatDay(log.day)} · ${formatMinutes(log.minutes)} · ${formatMoney(log.earnings)}'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Zrušiť')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Zmazať')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await ref.read(workLogApiProvider).delete(log.id);
+      _closeWith('Záznam zmazaný.');
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = 'Zmazanie zlyhalo.';
+      });
+    }
+  }
+
+  /// Refreshes everything Earnings feed into, closes the sheet and confirms with [message].
+  void _closeWith(String message) {
+    ref.invalidate(overviewProvider);
+    ref.invalidate(workLogsProvider);
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    Navigator.of(context).pop();
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// Work is recorded after it is done: from a year back up to today, reaching further back
+  /// only for an older work log being edited.
   Future<void> _pickDay() async {
     final today = ref.read(todayProvider);
+    final yearBack = DateTime(today.year - 1, today.month, today.day);
     final picked = await showDatePicker(
       context: context,
       initialDate: _day,
-      firstDate: DateTime(today.year - 1, today.month, today.day),
+      firstDate: _day.isBefore(yearBack) ? _day : yearBack,
       lastDate: today,
     );
     if (picked != null) setState(() => _day = picked);
@@ -104,7 +153,8 @@ class _WorkLogSheetState extends ConsumerState<WorkLogSheet> {
   @override
   Widget build(BuildContext context) {
     final workedMinutes = _workedMinutes;
-    final rate = ref.watch(hourlyRateProvider).value;
+    // An edited log keeps the rate it was recorded with, so the preview uses that one.
+    final rate = widget.existing?.hourlyRate ?? ref.watch(hourlyRateProvider).value;
     return Padding(
       key: const Key('work-log-sheet'),
       padding: EdgeInsets.fromLTRB(16, 0, 16, 16 + MediaQuery.viewInsetsOf(context).bottom),
@@ -112,7 +162,22 @@ class _WorkLogSheetState extends ConsumerState<WorkLogSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Zapísať prácu', style: Theme.of(context).textTheme.titleLarge),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.existing == null ? 'Zapísať prácu' : 'Upraviť záznam',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              if (widget.existing != null)
+                IconButton(
+                  tooltip: 'Zmazať',
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: _saving ? null : () => _delete(widget.existing!),
+                ),
+            ],
+          ),
           const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerLeft,
