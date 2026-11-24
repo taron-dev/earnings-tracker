@@ -165,6 +165,39 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - prepínač Svetlý / Tmavý / Systém v Nastaveniach (`SegmentedButton`), predvolene Systém
      - voľba sa ukladá cez `shared_preferences` (na webe localStorage), platí pre zariadenie, nie pre účet; načíta sa v `main` pred štartom, takže téma neblikne
      - hotové, keď na produkcii vidím modrú a prepnutie témy prežije obnovenie stránky
+   - [ ] 5.5 Moderný vzhľad (smer Hourlie)
+     - problém: UI je funkčné, ale pôsobí ako neupravený Material 3 (Roboto, tenké pruhy, riadky bez skupín, takmer rovnako veľké texty)
+     - predloha: [plátno Earnings Tracker redizajn](https://claude.ai/artifact/LADcaCfVdMxcE9ymgdSQNL), spodný riadok „Smer Hourlie“ (Prehľad, Záznamy, Zápis práce); je to konkrétna odsúhlasená predstava, nie inšpirácia, rozmery, farby a rozloženie brať z nej (horný riadok „Teraz“ je iba porovnanie so súčasným stavom)
+     - mení sa iba vzhľad, nie funkcie, API ani doménová logika; widget testy upraviť podľa nových textov a kľúčov
+     - [ ] 5.5.1 Téma a písmo
+       - Plus Jakarta Sans pribalené v `frontend/assets/fonts/` (400, 500, 600, 700, 800) s licenciou `OFL.txt`, registrované v `pubspec.yaml`, bez balíka `google_fonts`
+       - pozadie `#F4F6FB`; karty biele, zaoblenie 20, okraj 1 px `#E4E8F1`, bez tieňa (`CardTheme`)
+       - text `#10172A`, sekundárny `#5B6478`; zelená `#15803D` (pozadie čipu `#E7F6EC`) pre zárobok a pokryté; modrá `#275DAD` ostáva na akcie a rozpracované
+       - čísla s `FontFeature.tabularFigures()`, aby sa pri zmene neposúvali
+       - tmavá téma je v rozsahu: prepínač Svetlý / Tmavý / Systém z 5.4 a jeho uloženie ostávajú bez zmeny
+       - farby predlohy ako `ThemeExtension` so svetlou a tmavou sadou, nie natvrdo v obrazovkách; tmavá sada má rovnaké tvary a vlastné farby (tmavé pozadie, o stupeň svetlejšie karty, svetlejšia zelená a modrá kvôli kontrastu aspoň 4.5:1); predloha má iba svetlú, tmavú doladiť naživo
+     - [ ] 5.5.2 Navigácia a „+“
+       - plávajúca navigácia ostáva (16 px od okrajov, zaoblenie 28), biela s okrajom a jemným tieňom; aktívna položka modrou
+       - „+“ okrúhle 60 dp, modré, nad navigáciou; `fabClearance` prepočítať
+     - [ ] 5.5.3 Prehľad
+       - hore čip „1. 11. – 30. 11. · ešte 6 dní“ (ťuk → detail plánu), pod ním „Zarobené v tomto pláne“ a suma veľkým písmom (48)
+       - sadzba malým písmom pod sumou (ťuk → Nastavenia); súčet hodín z návrhu zatiaľ nie, `overview` ho nevracia a delenie zárobku sadzbou nesedí po zmene sadzby
+       - karta najbližšieho cieľa plná modrá s bielym textom: položka, „ešte X € z Y €“, chýbajúci čas najväčší, pruh; štítok ZÁKLAD/EXTRA (z `essential` položky)
+       - Základ a Extra ako samostatné karty; štítok „Pokrytý“ ako zelený čip; pokrytá položka zelená fajka bez pruhu, rozpracovaná s pruhom 6 px, nepokrytá sivý krúžok
+       - detail plánu používa rovnaké `planItemSections`, takže sa zmení s Prehľadom
+     - [ ] 5.5.4 Záznamy
+       - súčet hodín veľkým písmom, zárobok zelenou, okno ako čip
+       - zoskupenie po týždňoch (pondelok až nedeľa) s medzisúčtom hodín a zárobku, každý týždeň jedna karta
+       - riadok: skratka dňa a číslo dňa, zárobok, čas v sivej pilulke, šípka; ťuk otvorí úpravu ako doteraz
+     - [ ] 5.5.5 Zápis práce
+       - čip dňa „Dnes, po 24. 11.“ (ťuk otvorí kalendár), čas veľkým písmom, pod ním zelený náhľad „= 240 € pri 40 €/h“
+       - vľavo veľké −15m a pod ním menšie −30m, vpravo zrkadlovo +15m a +30m (menšie stále aspoň 44 dp); tlačidlá držia rozsah 15 min až 24 h
+       - rýchle voľby 1, 2, 4, 6, 8 h ako mriežka tlačidiel, zvolená modrá
+       - pole h a min sa odstraňuje, bežne zapisujem po 15 minútach; vrátiť, ak bude jemnejšia hodnota chýbať (backend aj úprava staršieho záznamu s inou hodnotou ostávajú bez zmeny, tlačidlá ju posúvajú od pôvodnej)
+       - dole „Zrušiť“ obrysové a „Uložiť“ plné; pri úprave 🗑 ako doteraz
+     - [ ] 5.5.6 Zvyšok a nasadenie
+       - Plány, formulár plánu, Nastavenia a Prihlásenie zjednotiť cez tému, bez samostatného návrhu
+       - hotové, keď na produkcii na telefóne aj monitore vidím nový vzhľad podľa predlohy vo svetlej aj tmavej téme a prepínač Svetlý / Tmavý / Systém funguje ako po 5.4
 6. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
 7. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
 
