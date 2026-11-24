@@ -2,6 +2,7 @@ import 'package:earnings_tracker/overview/plan_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/fab_clearance.dart';
 import '../support/fake_plan_overview_api.dart';
 import '../support/fake_work_log_api.dart';
 import '../support/pump_app.dart';
@@ -87,5 +88,12 @@ void main() {
     await tester.tap(find.text('Skúsiť znova'));
     await tester.pumpAndSettle();
     expect(find.text('Zatiaľ žiadne záznamy.'), findsOneWidget);
+  });
+
+  testWidgets('the last work log can be scrolled out from under the "+" button', (tester) async {
+    final api = FakeWorkLogApi([for (var i = 0; i < 30; i++) workLog('w$i', '2026-11-12', 60, '40.00')]);
+    await pumpApp(tester, location: '/work-logs', workLogApi: api);
+
+    await expectLastRowClearOfFab(tester, find.byKey(const Key('work-log-w29')));
   });
 }

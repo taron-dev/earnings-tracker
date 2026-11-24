@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/app_shell.dart';
 import '../app/today.dart';
 import '../format/date_format.dart';
 import '../format/time_format.dart';
@@ -79,7 +80,7 @@ class _OverviewBody extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final rate = ref.watch(hourlyRateProvider).value;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, fabClearance),
       children: [
         // The window opens the plan's detail, the way the rate opens settings.
         Align(

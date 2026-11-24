@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/app_shell.dart';
 import '../format/date_format.dart';
 import '../settings/settings_page.dart';
 import 'plan_summary.dart';
@@ -26,7 +27,7 @@ class PlansPage extends ConsumerWidget {
             data: (plans) => plans.isEmpty
                 ? const PlansMessage(title: 'Zatiaľ nemáš žiadny plán.')
                 : ListView(
-                    padding: const EdgeInsets.only(bottom: 88),
+                    padding: const EdgeInsets.only(bottom: fabClearance),
                     children: [
                       for (final plan in plans)
                         ListTile(

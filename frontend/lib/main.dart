@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app/max_width_layout.dart';
 import 'config.dart';
 import 'router.dart';
 
@@ -54,6 +55,7 @@ class EarningsTrackerApp extends StatelessWidget {
       title: 'Earnings Tracker',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal)),
       routerConfig: router,
+      builder: (context, child) => MaxWidthLayout(child: child!),
       // Slovak only for now; flutter_localizations makes the date picker Slovak and start weeks on Monday.
       locale: const Locale('sk'),
       supportedLocales: const [Locale('sk')],

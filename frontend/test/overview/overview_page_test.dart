@@ -2,6 +2,7 @@ import 'package:earnings_tracker/overview/plan_overview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/fab_clearance.dart';
 import '../support/fake_hourly_rate_api.dart';
 import '../support/fake_plan_overview_api.dart';
 import '../support/overview_json.dart';
@@ -190,5 +191,14 @@ void main() {
     await tester.tap(find.text('Skúsiť znova'));
     await tester.pumpAndSettle();
     expect(find.text('Zarobené 1${nbsp}480$nbsp€'), findsOneWidget);
+  });
+
+  testWidgets('the last item can be scrolled out from under the "+" button', (tester) async {
+    final longPlan = overviewJson(
+      items: [for (var i = 0; i < 30; i++) itemJson(i, 'Položka $i', '100.00', '0.00', 'UNCOVERED', essential: false)],
+    );
+    await pumpApp(tester, overviewApi: FakePlanOverviewApi(overviewFrom(longPlan)));
+
+    await expectLastRowClearOfFab(tester, find.byKey(const Key('item-29')));
   });
 }

@@ -140,8 +140,24 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - `/plans/:id/edit` ten istý formulár s `PUT`, Upraviť iba pri bežiacom a budúcom pláne
      - 🗑 s potvrdzovacím dialógom pri každom pláne
    - [x] 4.6 Nasadenie: produkcia, odstrániť zmienky o curl (krok 3 a Známe obmedzenia), doplniť obmedzenie „minulý plán iba na čítanie len v UI“; hotové, keď na produkcii vytvorím ďalší plán kópiou bežiaceho, upravím bežiaci plán (napr. presuniem hranicu) a Prehľad zmenu ukáže
-5. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
-6. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
+5. **Feedback z testovania**: úpravy podľa vlastného používania, podkroky budú postupne pribúdať.
+   - [ ] 5.1 Rozloženie UI na telefóne
+     - problém: Android, v Chrome v poriadku, po „Pridať na plochu“ (samostatné okno) je všetko veľmi malé a nedá sa priblížiť
+     - prvý pokus: statický `<meta name="viewport">` v `web/index.html` (rovnaký obsah, aký vkladá Flutter až pri štarte); overiť na telefóne po nasadení, ikonu na ploche odstrániť a pridať znova
+     - priblíženie gestom nie je cieľ (Flutter kreslí na canvas a gestá spracúva sám), aplikácia má mať čitateľnú veľkosť bez neho
+     - hotové, keď je na telefóne text čitateľný a ovládacie prvky sa dajú pohodlne ťuknúť
+   - [ ] 5.2 Najväčšia šírka na veľkej obrazovke
+     - problém: na externom monitore sa aplikácia roztiahne na celú šírku
+     - celá aplikácia v strede v stĺpci najviac 600 dp (koniec Material 3 triedy „compact“, šírka telefónu), okraje vo farbe `surfaceContainerHighest`
+     - obmedzenie cez `MaterialApp.router(builder:)`, takže dialógy a spodné panely ostanú v stĺpci; bez `NavigationRail` a viacstĺpcového rozloženia
+     - hotové, keď na monitore vyzerá aplikácia ako na telefóne v strede obrazovky
+   - [ ] 5.3 Tlačidlo „+“ prekrýva stav položiek
+     - problém: pri veľa položkách v Prehľade „+“ (FAB) zakryje sumu „zarobené / cieľ“ v poslednom riadku; zoznam má dole iba 16 px, takže sa spod tlačidla nedá vyrolovať
+     - riešenie: spodné odsadenie zoznamu `fabClearance` = 88 (56 tlačidlo + 2 × 16), aby sa posledný riadok dal vyrolovať nad tlačidlo; Prehľad, Záznamy aj Plány (tie ho už mali)
+     - zvážené a zatiaľ nie: schovanie tlačidla pri rolovaní, tlačidlo v spodnej lište, „+“ v hornej lište, suma pod názvom položky
+     - hotové, keď sa na telefóne pri dlhom pláne dá prečítať suma poslednej položky
+6. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
+7. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
 
 ## Rozsah prvého vydania (len pre mňa)
 

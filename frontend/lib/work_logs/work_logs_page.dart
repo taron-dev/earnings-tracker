@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app/app_shell.dart';
 import '../format/date_format.dart';
 import '../format/time_format.dart';
 import '../money/money_format.dart';
@@ -60,7 +61,7 @@ class _WorkLogList extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, fabClearance),
       children: [
         if (range.todayOutsidePlans) ...[
           Text('Dnešok nepatrí do žiadneho plánu, zobrazujem posledných 30 dní.', style: textTheme.bodySmall),

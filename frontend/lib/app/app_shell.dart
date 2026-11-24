@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../hourly_rate/hourly_rate_api.dart';
 import '../work_logs/work_log_sheet.dart';
 
+/// Bottom space a list needs so its last row can scroll out from under a floating action button:
+/// 56 for the button and 16 above and below it.
+const double fabClearance = 88;
+
 /// Bottom navigation between the overview and work log tabs; each tab keeps its own state.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.navigationShell});
