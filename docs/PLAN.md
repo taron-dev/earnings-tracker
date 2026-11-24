@@ -143,7 +143,8 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
 5. **Feedback z testovania**: úpravy podľa vlastného používania, podkroky budú postupne pribúdať.
    - [x] 5.1 Rozloženie UI na telefóne
      - problém: Android, v Chrome v poriadku, po „Pridať na plochu“ (samostatné okno) je všetko veľmi malé a nedá sa priblížiť
-     - prvý pokus: statický `<meta name="viewport">` v `web/index.html` (rovnaký obsah, aký vkladá Flutter až pri štarte); overiť na telefóne po nasadení, ikonu na ploche odstrániť a pridať znova
+     - príčina: v Chrome na telefóne bola zapnutá „Verzia pre počítač“ (Desktop site), ktorá ignoruje `viewport` a stránku rozloží na šírku počítača (~1000 CSS px); po vypnutí je zobrazenie správne v prehliadači aj na ploche; chyba nebola v aplikácii
+     - statický `<meta name="viewport">` v `web/index.html` ostáva (rovnaký obsah, aký vkladá Flutter pri štarte), problém však neriešil
      - priblíženie gestom nie je cieľ (Flutter kreslí na canvas a gestá spracúva sám), aplikácia má mať čitateľnú veľkosť bez neho
      - hotové, keď je na telefóne text čitateľný a ovládacie prvky sa dajú pohodlne ťuknúť
    - [x] 5.2 Najväčšia šírka na veľkej obrazovke
