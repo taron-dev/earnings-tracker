@@ -15,19 +15,35 @@ void main() {
     );
   }
 
-  testWidgets('limits the app to the max width on a wide screen', (
-    tester,
-  ) async {
+  testWidgets('takes half of a monitor, centered', (tester) async {
     await pumpOnScreen(tester, const Size(1920, 1080));
 
     final scaffold = tester.getRect(find.byType(Scaffold));
-    expect(scaffold.width, appMaxWidth);
+    expect(scaffold.width, 960);
     expect(scaffold.center.dx, 960);
+  });
+
+  testWidgets('stays phone wide where half would be narrower', (tester) async {
+    await pumpOnScreen(tester, const Size(1000, 800));
+
+    final scaffold = tester.getRect(find.byType(Scaffold));
+    expect(scaffold.width, phoneWidth);
+    expect(scaffold.center.dx, 500);
   });
 
   testWidgets('uses the full width on a phone', (tester) async {
     await pumpOnScreen(tester, const Size(400, 800));
 
     expect(tester.getSize(find.byType(Scaffold)).width, 400);
+  });
+
+  testWidgets('fills the sides with the app background', (tester) async {
+    await pumpOnScreen(tester, const Size(1920, 1080));
+
+    final sides = tester.widget<ColoredBox>(
+      find.descendant(of: find.byType(MaxWidthLayout), matching: find.byType(ColoredBox)).first,
+    );
+    final context = tester.element(find.byType(Scaffold));
+    expect(sides.color, Theme.of(context).scaffoldBackgroundColor);
   });
 }

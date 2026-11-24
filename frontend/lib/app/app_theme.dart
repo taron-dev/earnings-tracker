@@ -13,5 +13,11 @@ ThemeData appTheme(Brightness brightness) {
     brightness: brightness,
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
   );
-  return ThemeData(colorScheme: brightness == Brightness.light ? seeded.copyWith(primary: brandColor) : seeded);
+  final scheme = brightness == Brightness.light ? seeded.copyWith(primary: brandColor) : seeded;
+  return ThemeData(
+    colorScheme: scheme,
+    // Material 3 turns the app bar surfaceContainer when content scrolls under it; in the centered column
+    // that ends at the column's edges as a gray strip, so the app bar keeps the background color instead.
+    appBarTheme: AppBarThemeData(backgroundColor: scheme.surface, scrolledUnderElevation: 0),
+  );
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:earnings_tracker/app/app_shell.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/pump_app.dart';
@@ -47,5 +48,20 @@ void main() {
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     expect(currentPath(router), '/overview');
+  });
+
+  testWidgets('the navigation bar floats with rounded corners', (tester) async {
+    await pumpApp(tester);
+
+    final bar = find.ancestor(of: find.byType(NavigationBar), matching: find.byKey(const Key('floating-navigation'))).first;
+    final material = tester.widget<Material>(bar);
+    expect(material.borderRadius, BorderRadius.circular(floatingNavigationRadius));
+    expect(material.elevation, greaterThan(0));
+
+    final screen = tester.getRect(find.byType(Scaffold).first);
+    final barRect = tester.getRect(bar);
+    expect(barRect.left, greaterThan(screen.left));
+    expect(barRect.right, lessThan(screen.right));
+    expect(barRect.bottom, lessThan(screen.bottom));
   });
 }

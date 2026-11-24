@@ -1,13 +1,21 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
-/// Upper bound for the app width on large screens. 600 dp is where the
-/// Material 3 "compact" window size class ends, i.e. phone width, which is
-/// what every screen of this app is designed for.
-const double appMaxWidth = 600;
+/// Where the Material 3 "compact" window size class ends, i.e. phone width,
+/// which every screen of this app is designed for.
+const double phoneWidth = 600;
 
-/// Centers the whole app in a column of at most [appMaxWidth]; the space
-/// on the sides gets the theme surface color. Wraps the Navigator, so
-/// dialogs and bottom sheets stay in the column too.
+/// Width of the app column on a window of [screenWidth]: the whole window on
+/// a phone, half of it on a monitor, but never narrower than [phoneWidth].
+/// Decided by the window width, not by the device, so a narrow browser
+/// window on a PC behaves like a phone.
+double appColumnWidth(double screenWidth) => min(screenWidth, max(phoneWidth, screenWidth / 2));
+
+/// Centers the whole app in a column of [appColumnWidth]; the space on the
+/// sides has the scaffold background, so the window looks like one app with
+/// no visible edge. Wraps the Navigator, so dialogs and bottom sheets stay in
+/// the column too.
 class MaxWidthLayout extends StatelessWidget {
   const MaxWidthLayout({super.key, required this.child});
 
@@ -16,11 +24,10 @@ class MaxWidthLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: appMaxWidth),
-          child: child,
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Center(
+          child: SizedBox(width: appColumnWidth(constraints.maxWidth), child: child),
         ),
       ),
     );

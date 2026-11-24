@@ -141,22 +141,25 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - 🗑 s potvrdzovacím dialógom pri každom pláne
    - [x] 4.6 Nasadenie: produkcia, odstrániť zmienky o curl (krok 3 a Známe obmedzenia), doplniť obmedzenie „minulý plán iba na čítanie len v UI“; hotové, keď na produkcii vytvorím ďalší plán kópiou bežiaceho, upravím bežiaci plán (napr. presuniem hranicu) a Prehľad zmenu ukáže
 5. **Feedback z testovania**: úpravy podľa vlastného používania, podkroky budú postupne pribúdať.
-   - [ ] 5.1 Rozloženie UI na telefóne
+   - [x] 5.1 Rozloženie UI na telefóne
      - problém: Android, v Chrome v poriadku, po „Pridať na plochu“ (samostatné okno) je všetko veľmi malé a nedá sa priblížiť
      - prvý pokus: statický `<meta name="viewport">` v `web/index.html` (rovnaký obsah, aký vkladá Flutter až pri štarte); overiť na telefóne po nasadení, ikonu na ploche odstrániť a pridať znova
      - priblíženie gestom nie je cieľ (Flutter kreslí na canvas a gestá spracúva sám), aplikácia má mať čitateľnú veľkosť bez neho
      - hotové, keď je na telefóne text čitateľný a ovládacie prvky sa dajú pohodlne ťuknúť
-   - [ ] 5.2 Najväčšia šírka na veľkej obrazovke
+   - [x] 5.2 Najväčšia šírka na veľkej obrazovke
      - problém: na externom monitore sa aplikácia roztiahne na celú šírku
-     - celá aplikácia v strede v stĺpci najviac 600 dp (koniec Material 3 triedy „compact“, šírka telefónu), okraje vo farbe `surfaceContainerHighest`
+     - celá aplikácia v strede v stĺpci: na telefóne celá šírka, na monitore polovica okna, nikdy užšia ako 600 dp (koniec Material 3 triedy „compact“, šírka telefónu); okraje vo farbe pozadia aplikácie (`scaffoldBackgroundColor`), bez viditeľného okraja
+     - rozhoduje šírka okna, nie typ zariadenia (úzke okno na PC sa správa ako telefón)
+     - spodná navigácia pláva nad okrajom: odsadená 16 px, zaoblené rohy 28, jemný tieň (`elevation` 3), na telefóne aj na PC
+     - horná lišta pri rolovaní nemení farbu (`backgroundColor: surface`, `scrolledUnderElevation: 0`), inak by na PC vytŕčala ako sivý pás
      - obmedzenie cez `MaterialApp.router(builder:)`, takže dialógy a spodné panely ostanú v stĺpci; bez `NavigationRail` a viacstĺpcového rozloženia
-     - hotové, keď na monitore vyzerá aplikácia ako na telefóne v strede obrazovky
-   - [ ] 5.3 Tlačidlo „+“ prekrýva stav položiek
+     - hotové, keď na monitore zaberá aplikácia polovicu šírky v strede a na telefóne celú šírku
+   - [x] 5.3 Tlačidlo „+“ prekrýva stav položiek
      - problém: pri veľa položkách v Prehľade „+“ (FAB) zakryje sumu „zarobené / cieľ“ v poslednom riadku; zoznam má dole iba 16 px, takže sa spod tlačidla nedá vyrolovať
      - riešenie: spodné odsadenie zoznamu `fabClearance` = 88 (56 tlačidlo + 2 × 16), aby sa posledný riadok dal vyrolovať nad tlačidlo; Prehľad, Záznamy aj Plány (tie ho už mali)
      - zvážené a zatiaľ nie: schovanie tlačidla pri rolovaní, tlačidlo v spodnej lište, „+“ v hornej lište, suma pod názvom položky
      - hotové, keď sa na telefóne pri dlhom pláne dá prečítať suma poslednej položky
-   - [ ] 5.4 Farby a téma
+   - [x] 5.4 Farby a téma
      - namiesto tyrkysovej (`Colors.teal`) modrá `#275DAD`: `ColorScheme.fromSeed` s variantom `fidelity` (sekundárna a terciárna sa dopočítajú); vo svetlej schéme primárna presne `#275DAD`, v tmavej svetlejšia dopočítaná `#ACC7FF` kvôli kontrastu; `theme_color` v `manifest.json`
      - prepínač Svetlý / Tmavý / Systém v Nastaveniach (`SegmentedButton`), predvolene Systém
      - voľba sa ukladá cez `shared_preferences` (na webe localStorage), platí pre zariadenie, nie pre účet; načíta sa v `main` pred štartom, takže téma neblikne

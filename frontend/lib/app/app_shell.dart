@@ -9,6 +9,9 @@ import '../work_logs/work_log_sheet.dart';
 /// 56 for the button and 16 above and below it.
 const double fabClearance = 88;
 
+/// Corner radius of the floating navigation bar (the Material 3 "extra large" shape).
+const double floatingNavigationRadius = 28;
+
 /// Bottom navigation between the overview and work log tabs; each tab keeps its own state.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.navigationShell});
@@ -34,26 +37,40 @@ class AppShell extends ConsumerWidget {
               onPressed: () => rateMissing ? context.push('/settings') : showWorkLogSheet(context),
               child: const Icon(Icons.add),
             ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: navigationShell.goBranch,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.pie_chart_outline),
-            selectedIcon: Icon(Icons.pie_chart),
-            label: 'Prehľad',
+      // Floats above the bottom edge with rounded corners, so on a wide window it reads as part of the
+      // centered column rather than a strip cut off at its edges.
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Material(
+          key: const Key('floating-navigation'),
+          elevation: 3,
+          color: Theme.of(context).colorScheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(floatingNavigationRadius),
+          clipBehavior: Clip.antiAlias,
+          child: NavigationBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: navigationShell.goBranch,
+            destinations: const [
+              NavigationDestination(
+                icon: Icon(Icons.pie_chart_outline),
+                selectedIcon: Icon(Icons.pie_chart),
+                label: 'Prehľad',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.list_alt_outlined),
+                selectedIcon: Icon(Icons.list_alt),
+                label: 'Záznamy',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.event_note_outlined),
+                selectedIcon: Icon(Icons.event_note),
+                label: 'Plány',
+              ),
+            ],
           ),
-          NavigationDestination(
-            icon: Icon(Icons.list_alt_outlined),
-            selectedIcon: Icon(Icons.list_alt),
-            label: 'Záznamy',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.event_note_outlined),
-            selectedIcon: Icon(Icons.event_note),
-            label: 'Plány',
-          ),
-        ],
+        ),
       ),
     );
   }
