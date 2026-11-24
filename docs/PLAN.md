@@ -156,6 +156,11 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - riešenie: spodné odsadenie zoznamu `fabClearance` = 88 (56 tlačidlo + 2 × 16), aby sa posledný riadok dal vyrolovať nad tlačidlo; Prehľad, Záznamy aj Plány (tie ho už mali)
      - zvážené a zatiaľ nie: schovanie tlačidla pri rolovaní, tlačidlo v spodnej lište, „+“ v hornej lište, suma pod názvom položky
      - hotové, keď sa na telefóne pri dlhom pláne dá prečítať suma poslednej položky
+   - [ ] 5.4 Farby a téma
+     - namiesto tyrkysovej (`Colors.teal`) modrá `#275DAD`: `ColorScheme.fromSeed` s variantom `fidelity` (sekundárna a terciárna sa dopočítajú); vo svetlej schéme primárna presne `#275DAD`, v tmavej svetlejšia dopočítaná `#ACC7FF` kvôli kontrastu; `theme_color` v `manifest.json`
+     - prepínač Svetlý / Tmavý / Systém v Nastaveniach (`SegmentedButton`), predvolene Systém
+     - voľba sa ukladá cez `shared_preferences` (na webe localStorage), platí pre zariadenie, nie pre účet; načíta sa v `main` pred štartom, takže téma neblikne
+     - hotové, keď na produkcii vidím modrú a prepnutie témy prežije obnovenie stránky
 6. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
 7. **Uzavretá beta** s 5 až 15 živnostníkmi a rozhovory o cene.
 

@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'app/app_theme.dart';
 import 'app/max_width_layout.dart';
 import 'config.dart';
 import 'router.dart';
+import 'settings/theme_mode.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final SharedPreferences prefs;
   try {
     Config.ensureComplete();
+    prefs = await SharedPreferences.getInstance();
 
     // Also picks up the session from the redirect URL after Google / magic link sign-in.
     await Supabase.initialize(
@@ -23,7 +28,12 @@ Future<void> main() async {
     return;
   }
 
-  runApp(const ProviderScope(child: EarningsTrackerApp()));
+  runApp(
+    ProviderScope(
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      child: const EarningsTrackerApp(),
+    ),
+  );
 }
 
 class _StartupErrorApp extends StatelessWidget {
@@ -46,14 +56,16 @@ class _StartupErrorApp extends StatelessWidget {
   }
 }
 
-class EarningsTrackerApp extends StatelessWidget {
+class EarningsTrackerApp extends ConsumerWidget {
   const EarningsTrackerApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'Earnings Tracker',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal)),
+      theme: appTheme(Brightness.light),
+      darkTheme: appTheme(Brightness.dark),
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
       builder: (context, child) => MaxWidthLayout(child: child!),
       // Slovak only for now; flutter_localizations makes the date picker Slovak and start weeks on Monday.

@@ -1,18 +1,23 @@
 import 'package:earnings_tracker/auth/auth_providers.dart';
 import 'package:earnings_tracker/hourly_rate/hourly_rate_api.dart';
 import 'package:earnings_tracker/settings/settings_page.dart';
+import 'package:earnings_tracker/settings/theme_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/fake_hourly_rate_api.dart';
 
 Future<void> pumpSettings(WidgetTester tester, FakeHourlyRateApi api) async {
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         hourlyRateApiProvider.overrideWithValue(api),
         signedInEmailProvider.overrideWithValue('jana@example.com'),
+        sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const MaterialApp(home: SettingsPage()),
     ),
@@ -82,5 +87,23 @@ void main() {
     expect(find.text('Uloženie zlyhalo.'), findsOneWidget);
     expect(fieldText(tester), '45');
     expect(tester.widget<FilledButton>(saveButton).onPressed, isNotNull);
+  });
+
+  testWidgets('follows the system theme until another one is chosen', (tester) async {
+    await pumpSettings(tester, FakeHourlyRateApi());
+
+    final themes = tester.widget<SegmentedButton<ThemeMode>>(find.byType(SegmentedButton<ThemeMode>));
+    expect(themes.selected, {ThemeMode.system});
+  });
+
+  testWidgets('switches to the dark theme and remembers it', (tester) async {
+    await pumpSettings(tester, FakeHourlyRateApi());
+
+    await tester.tap(find.text('Tmavý'));
+    await tester.pumpAndSettle();
+
+    final themes = tester.widget<SegmentedButton<ThemeMode>>(find.byType(SegmentedButton<ThemeMode>));
+    expect(themes.selected, {ThemeMode.dark});
+    expect((await SharedPreferences.getInstance()).getString('themeMode'), 'dark');
   });
 }

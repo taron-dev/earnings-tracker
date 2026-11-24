@@ -4,11 +4,13 @@ import 'package:earnings_tracker/auth/auth_providers.dart';
 import 'package:earnings_tracker/hourly_rate/hourly_rate_api.dart';
 import 'package:earnings_tracker/overview/plan_overview_api.dart';
 import 'package:earnings_tracker/plans/plans_api.dart';
+import 'package:earnings_tracker/settings/theme_mode.dart';
 import 'package:earnings_tracker/work_logs/work_log_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'fake_hourly_rate_api.dart';
 import 'fake_plan_overview_api.dart';
@@ -32,6 +34,8 @@ Future<GoRouter> pumpApp(
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
+  SharedPreferences.setMockInitialValues({});
+  final prefs = await SharedPreferences.getInstance();
   final router = GoRouter(navigatorKey: rootNavigatorKey, initialLocation: location, routes: appRoutes);
   await tester.pumpWidget(
     ProviderScope(
@@ -42,6 +46,7 @@ Future<GoRouter> pumpApp(
         planOverviewApiProvider.overrideWithValue(overviewApi ?? FakePlanOverviewApi()),
         workLogApiProvider.overrideWithValue(workLogApi ?? FakeWorkLogApi()),
         plansApiProvider.overrideWithValue(plansApi ?? FakePlansApi()),
+        sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: MaterialApp.router(routerConfig: router),
     ),
