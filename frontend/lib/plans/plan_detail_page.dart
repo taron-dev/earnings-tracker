@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/app_theme.dart';
 import '../app/today.dart';
 import '../format/date_format.dart';
 import '../money/money_format.dart';
@@ -96,9 +97,12 @@ class _PlanBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
       children: [
-        Text('Zarobené ${formatMoney(plan.earnings)}', style: Theme.of(context).textTheme.headlineSmall),
+        Text(
+          'Zarobené ${formatMoney(plan.earnings)}',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: AppColors.of(context).earned),
+        ),
         if (plan.items.isEmpty) ...[
           const SizedBox(height: 24),
           const Text('Plán nemá položky.'),

@@ -76,13 +76,13 @@ void main() {
     expect(currentPath(router), '/plans/$octoberId');
     expect(find.widgetWithText(AppBar, '1. – 31. 10. 2026'), findsOneWidget);
     expect(find.text('Zarobené 1${nbsp}100$nbsp€'), findsOneWidget);
-    expect(find.text('ZÁKLAD'), findsOneWidget);
-    expect(find.text('pokrytý'), findsOneWidget);
-    expect(find.text('EXTRA'), findsOneWidget);
-    expect(find.descendant(of: find.byKey(const Key('item-1')), matching: find.text('200 / 400$nbsp€')), findsOneWidget);
+    expect(find.text('Základ'), findsOneWidget);
+    expect(find.text('Pokrytý'), findsOneWidget);
+    expect(find.text('Extra'), findsOneWidget);
+    expect(find.descendant(of: find.byKey(const Key('item-1')), matching: find.text('200 / 400$nbsp€', findRichText: true)), findsOneWidget);
     expect(find.text('Nepriradené 100$nbsp€'), findsNothing);
     expect(find.byKey(const Key('next-milestone')), findsNothing);
-    expect(find.textContaining('/ h'), findsNothing);
+    expect(find.textContaining('€/h'), findsNothing);
   });
 
   testWidgets('shows unassigned earnings of a plan', (tester) async {

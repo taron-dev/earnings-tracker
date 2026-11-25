@@ -15,10 +15,10 @@ void main() {
   testWidgets('shows the window, days left, earnings and rate', (tester) async {
     await pumpApp(tester);
 
-    expect(find.text('1. – 30. 11. 2026'), findsOneWidget);
-    expect(find.text('ešte 19 dní'), findsOneWidget);
-    expect(find.text('Zarobené 1${nbsp}480$nbsp€'), findsOneWidget);
-    expect(find.text('40$nbsp€ / h'), findsOneWidget);
+    expect(find.text('1. 11. – 30. 11. · ešte 19 dní'), findsOneWidget);
+    expect(find.text('Zarobené v tomto pláne'), findsOneWidget);
+    expect(find.text('1${nbsp}480$nbsp€'), findsOneWidget);
+    expect(find.text('pri 40$nbsp€/h'), findsOneWidget);
   });
 
   testWidgets('opens the plan detail from the window', (tester) async {
@@ -34,20 +34,36 @@ void main() {
   testWidgets('opens settings from the rate', (tester) async {
     await pumpApp(tester);
 
-    await tester.tap(find.text('40$nbsp€ / h'));
+    await tester.tap(find.text('pri 40$nbsp€/h'));
     await tester.pumpAndSettle();
 
     expect(find.widgetWithText(AppBar, 'Nastavenia'), findsOneWidget);
   });
 
+  Finder inMilestone(Finder matching) => find.descendant(of: find.byKey(const Key('next-milestone')), matching: matching);
+
   testWidgets('shows the next milestone in hours', (tester) async {
     await pumpApp(tester);
 
-    final card = find.byKey(const Key('next-milestone'));
-    expect(find.descendant(of: card, matching: find.text('Najbližší cieľ')), findsOneWidget);
-    expect(find.descendant(of: card, matching: find.text('Hypotéka')), findsOneWidget);
-    expect(find.descendant(of: card, matching: find.text('ešte 170$nbsp€ · 4 h 15 min')), findsOneWidget);
+    expect(inMilestone(find.text('Najbližší cieľ')), findsOneWidget);
+    expect(inMilestone(find.text('ZÁKLAD')), findsOneWidget);
+    expect(inMilestone(find.text('Hypotéka')), findsOneWidget);
+    expect(inMilestone(find.text('ešte 170$nbsp€ z 750$nbsp€')), findsOneWidget);
+    expect(inMilestone(find.text('4 h 15')), findsOneWidget);
+    expect(inMilestone(find.text('min práce')), findsOneWidget);
+    expect(tester.widget<LinearProgressIndicator>(inMilestone(find.byType(LinearProgressIndicator))).value, closeTo(580 / 750, 0.0001));
   });
+
+  for (final (minutes, big, small) in [(420, '7 h', 'práce'), (45, '45', 'min práce')]) {
+    testWidgets('shows $minutes minutes of work as "$big $small"', (tester) async {
+      final json = overviewJson(nextMilestone: {'position': 3, 'missing': eurJson('300.00'), 'minutesNeeded': minutes});
+      await pumpApp(tester, overviewApi: FakePlanOverviewApi(overviewFrom(json)));
+
+      expect(inMilestone(find.text('EXTRA')), findsOneWidget);
+      expect(inMilestone(find.text(big)), findsOneWidget);
+      expect(inMilestone(find.text(small)), findsOneWidget);
+    });
+  }
 
   testWidgets('celebrates a fully covered plan', (tester) async {
     final covered = overviewJson(
@@ -69,32 +85,36 @@ void main() {
 
   Finder inItem(int position, Finder matching) => find.descendant(of: find.byKey(Key('item-$position')), matching: matching);
 
-  testWidgets('lists items under essentials and extras', (tester) async {
+  Finder essentials(Finder matching) => find.descendant(of: find.byKey(const Key('section-essentials')), matching: matching);
+  Finder extras(Finder matching) => find.descendant(of: find.byKey(const Key('section-extras')), matching: matching);
+
+  testWidgets('lists items in essentials and extras cards', (tester) async {
     await pumpApp(tester);
 
-    expect(find.text('ZÁKLAD'), findsOneWidget);
-    expect(find.text('nepokrytý'), findsOneWidget);
-    expect(find.text('EXTRA'), findsOneWidget);
-    final essentialsY = tester.getTopLeft(find.text('ZÁKLAD')).dy;
-    final extrasY = tester.getTopLeft(find.text('EXTRA')).dy;
-    expect(tester.getTopLeft(find.text('Jedlo')).dy, inExclusiveRange(essentialsY, extrasY));
-    expect(tester.getTopLeft(find.text('Investovanie')).dy, greaterThan(extrasY));
+    expect(essentials(find.text('Základ')), findsOneWidget);
+    expect(essentials(find.text('1 z 3 pokrytých')), findsOneWidget);
+    expect(essentials(find.text('Jedlo')), findsOneWidget);
+    expect(extras(find.text('Extra')), findsOneWidget);
+    expect(extras(find.text('0 z 2 pokrytých')), findsOneWidget);
+    expect(extras(find.text('Investovanie')), findsOneWidget);
+    expect(tester.getTopLeft(find.byKey(const Key('section-extras'))).dy,
+        greaterThan(tester.getTopLeft(find.byKey(const Key('section-essentials'))).dy));
   });
 
   testWidgets('shows how far each item is funded', (tester) async {
     await pumpApp(tester);
 
-    expect(inItem(0, find.byIcon(Icons.check_circle)), findsOneWidget);
+    expect(inItem(0, find.byKey(const Key('mark-covered'))), findsOneWidget);
     expect(inItem(0, find.text('900$nbsp€')), findsOneWidget);
-    expect(inItem(1, find.byIcon(Icons.timelapse)), findsOneWidget);
-    expect(inItem(1, find.text('580 / 750$nbsp€')), findsOneWidget);
-    expect(inItem(2, find.byIcon(Icons.radio_button_unchecked)), findsOneWidget);
+    expect(inItem(1, find.byKey(const Key('mark-in-progress'))), findsOneWidget);
+    expect(inItem(1, find.text('580 / 750$nbsp€', findRichText: true)), findsOneWidget);
+    expect(inItem(2, find.byKey(const Key('mark-uncovered'))), findsOneWidget);
     expect(inItem(2, find.text('500$nbsp€')), findsOneWidget);
 
-    double progress(int position) => tester.widget<LinearProgressIndicator>(inItem(position, find.byType(LinearProgressIndicator))).value!;
-    expect(progress(0), 1.0);
-    expect(progress(1), closeTo(580 / 750, 0.0001));
-    expect(progress(2), 0.0);
+    // Only the item in progress has a bar; covered and uncovered say it with their mark.
+    expect(tester.widget<LinearProgressIndicator>(inItem(1, find.byType(LinearProgressIndicator))).value, closeTo(580 / 750, 0.0001));
+    expect(inItem(0, find.byType(LinearProgressIndicator)), findsNothing);
+    expect(inItem(2, find.byType(LinearProgressIndicator)), findsNothing);
   });
 
   testWidgets('marks covered essentials and hides an empty section', (tester) async {
@@ -105,8 +125,8 @@ void main() {
     );
     await pumpApp(tester, overviewApi: FakePlanOverviewApi(overviewFrom(onlyEssentials)));
 
-    expect(find.text('pokrytý'), findsOneWidget);
-    expect(find.text('EXTRA'), findsNothing);
+    expect(essentials(find.text('Pokrytý')), findsOneWidget);
+    expect(find.byKey(const Key('section-extras')), findsNothing);
   });
 
   testWidgets('hides essentials when the line is at the top', (tester) async {
@@ -117,8 +137,8 @@ void main() {
     );
     await pumpApp(tester, overviewApi: FakePlanOverviewApi(overviewFrom(onlyExtras)));
 
-    expect(find.text('ZÁKLAD'), findsNothing);
-    expect(find.text('EXTRA'), findsOneWidget);
+    expect(find.byKey(const Key('section-essentials')), findsNothing);
+    expect(find.byKey(const Key('section-extras')), findsOneWidget);
   });
 
   testWidgets('hides unassigned earnings while there are none', (tester) async {
@@ -190,7 +210,7 @@ void main() {
     api.error = null;
     await tester.tap(find.text('Skúsiť znova'));
     await tester.pumpAndSettle();
-    expect(find.text('Zarobené 1${nbsp}480$nbsp€'), findsOneWidget);
+    expect(find.byKey(const Key('overview-earnings')), findsOneWidget);
   });
 
   testWidgets('the last item can be scrolled out from under the "+" button', (tester) async {

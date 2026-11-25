@@ -13,17 +13,13 @@ Finder get sheet => find.byKey(const Key('work-log-sheet'));
 
 Finder inSheet(Finder matching) => find.descendant(of: sheet, matching: matching);
 
-Finder get hoursField => inSheet(find.widgetWithText(TextField, 'Hodiny'));
-
-Finder get minutesField => inSheet(find.widgetWithText(TextField, 'Minúty'));
-
 Finder get saveButton => inSheet(find.widgetWithText(FilledButton, 'Uložiť'));
 
 Finder get deleteButton => inSheet(find.byTooltip('Zmazať'));
 
 Finder get dialog => find.byType(AlertDialog);
 
-String textOf(WidgetTester tester, Finder field) => tester.widget<TextField>(field).controller!.text;
+String timeShown(WidgetTester tester) => tester.widget<Text>(inSheet(find.byKey(const Key('work-log-time')))).data!;
 
 /// Recorded at 30 EUR/h, before the rate went up to the current 40 EUR/h.
 WorkLog oldRateLog() => WorkLog.fromJson(workLogJson('a1', '2026-11-11', 390, '195.00', rate: '30.00'));
@@ -42,16 +38,17 @@ void main() {
 
     expect(inSheet(find.text('Upraviť záznam')), findsOneWidget);
     expect(inSheet(find.text('st 11. 11.')), findsOneWidget);
-    expect(textOf(tester, hoursField), '6');
-    expect(textOf(tester, minutesField), '30');
-    expect(inSheet(find.text('= 195$nbsp€ pri 30$nbsp€ / h')), findsOneWidget);
+    expect(timeShown(tester), '6 h 30');
+    expect(inSheet(find.text('= 195$nbsp€ pri 30$nbsp€/h')), findsOneWidget);
   });
 
   testWidgets('saves the changed time and refreshes the list', (tester) async {
     final api = await openLog(tester);
     final loads = api.requestedRanges.length;
 
-    await tester.enterText(hoursField, '7');
+    await tester.tap(inSheet(find.byKey(const Key('plus-30'))));
+    await tester.pump();
+    await tester.tap(inSheet(find.byKey(const Key('plus-30'))));
     await tester.pump();
     await tester.tap(saveButton);
     await tester.pumpAndSettle();
@@ -124,5 +121,18 @@ void main() {
 
     final picker = tester.widget<DatePickerDialog>(find.byType(DatePickerDialog));
     expect(picker.firstDate, DateTime(2025, 6, 2));
+  });
+
+  testWidgets('steps an off-grid time from its own value', (tester) async {
+    final odd = WorkLog.fromJson(workLogJson('x1', '2026-11-11', 397, '264.67'));
+    final api = FakeWorkLogApi([odd]);
+    await pumpApp(tester, location: '/work-logs', workLogApi: api);
+    await tester.tap(find.byKey(const Key('work-log-x1')));
+    await tester.pumpAndSettle();
+
+    expect(timeShown(tester), '6 h 37');
+    await tester.tap(inSheet(find.byKey(const Key('minus-15'))));
+    await tester.pump();
+    expect(timeShown(tester), '6 h 22');
   });
 }

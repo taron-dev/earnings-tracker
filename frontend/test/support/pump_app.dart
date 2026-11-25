@@ -1,4 +1,5 @@
 import 'package:earnings_tracker/app/app_routes.dart';
+import 'package:earnings_tracker/app/app_theme.dart';
 import 'package:earnings_tracker/app/today.dart';
 import 'package:earnings_tracker/auth/auth_providers.dart';
 import 'package:earnings_tracker/hourly_rate/hourly_rate_api.dart';
@@ -48,7 +49,7 @@ Future<GoRouter> pumpApp(
         plansApiProvider.overrideWithValue(plansApi ?? FakePlansApi()),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(theme: appTheme(Brightness.light), routerConfig: router),
     ),
   );
   await tester.pumpAndSettle();

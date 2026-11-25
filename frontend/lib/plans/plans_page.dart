@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../app/app_shell.dart';
+import '../app/app_theme.dart';
 import '../format/date_format.dart';
 import '../settings/settings_page.dart';
 import 'plan_summary.dart';
@@ -14,6 +15,7 @@ class PlansPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = AppColors.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Plány'), actions: const [SettingsButton()]),
       floatingActionButton: FloatingActionButton.extended(
@@ -27,16 +29,29 @@ class PlansPage extends ConsumerWidget {
             data: (plans) => plans.isEmpty
                 ? const PlansMessage(title: 'Zatiaľ nemáš žiadny plán.')
                 : ListView(
-                    padding: const EdgeInsets.only(bottom: fabClearance),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, fabClearance),
                     children: [
-                      for (final plan in plans)
-                        ListTile(
-                          key: Key('plan-${plan.planId}'),
-                          title: Text(formatWindow(plan.windowFrom, plan.windowTo)),
-                          subtitle: Text(planSummary(plan)),
-                          trailing: const Icon(Icons.chevron_right),
-                          onTap: () => context.go('/plans/${plan.planId}'),
+                      Card(
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            for (final (index, plan) in plans.indexed) ...[
+                              if (index > 0) const Divider(indent: 16, endIndent: 16),
+                              ListTile(
+                                key: Key('plan-${plan.planId}'),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                title: Text(
+                                  formatWindow(plan.windowFrom, plan.windowTo),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                                ),
+                                subtitle: Text(planSummary(plan), style: TextStyle(fontSize: 13, color: colors.textSecondary)),
+                                trailing: Icon(Icons.chevron_right, color: colors.textFaint),
+                                onTap: () => context.go('/plans/${plan.planId}'),
+                              ),
+                            ],
+                          ],
                         ),
+                      ),
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),

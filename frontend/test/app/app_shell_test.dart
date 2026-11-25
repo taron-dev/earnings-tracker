@@ -33,7 +33,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(currentPath(router), '/work-logs');
-    expect(find.widgetWithText(AppBar, 'Záznamy práce'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Záznamy'), findsOneWidget);
   });
 
   testWidgets('opens settings from the app bar and goes back', (tester) async {
@@ -55,13 +55,20 @@ void main() {
 
     final bar = find.ancestor(of: find.byType(NavigationBar), matching: find.byKey(const Key('floating-navigation'))).first;
     final material = tester.widget<Material>(bar);
-    expect(material.borderRadius, BorderRadius.circular(floatingNavigationRadius));
-    expect(material.elevation, greaterThan(0));
+    expect((material.shape! as RoundedRectangleBorder).borderRadius, BorderRadius.circular(floatingNavigationRadius));
 
     final screen = tester.getRect(find.byType(Scaffold).first);
     final barRect = tester.getRect(bar);
     expect(barRect.left, greaterThan(screen.left));
     expect(barRect.right, lessThan(screen.right));
     expect(barRect.bottom, lessThan(screen.bottom));
+  });
+
+  testWidgets('the "+" button is a round button of fabSize', (tester) async {
+    await pumpApp(tester);
+
+    final fab = find.byType(FloatingActionButton);
+    expect(tester.getSize(fab), const Size.square(fabSize));
+    expect(tester.widget<FloatingActionButton>(fab).shape, const CircleBorder());
   });
 }

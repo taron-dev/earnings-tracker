@@ -28,4 +28,17 @@ void main() {
       expect(bar.elevation, 0);
     });
   }
+
+  test('both themes carry their own set of redesign colors', () {
+    expect(appTheme(Brightness.light).extension<AppColors>(), AppColors.light);
+    expect(appTheme(Brightness.dark).extension<AppColors>(), AppColors.dark);
+    expect(appTheme(Brightness.light).scaffoldBackgroundColor, AppColors.light.background);
+    expect(appTheme(Brightness.dark).scaffoldBackgroundColor, AppColors.dark.background);
+  });
+
+  test('text uses the bundled font with tabular figures', () {
+    final style = appTheme(Brightness.light).textTheme.bodyMedium!;
+    expect(style.fontFamily, appFontFamily);
+    expect(style.fontFeatures, tabularFigures);
+  });
 }

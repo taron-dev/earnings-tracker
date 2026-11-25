@@ -18,6 +18,17 @@ void main() {
     });
   });
 
+  group('formatWindowShort', () {
+    test('leaves out the year', () {
+      expect(formatWindowShort(d(2026, 11, 1), d(2026, 11, 30)), '1. 11. – 30. 11.');
+      expect(formatWindowShort(d(2026, 11, 15), d(2026, 12, 14)), '15. 11. – 14. 12.');
+    });
+
+    test('keeps the years across New Year', () {
+      expect(formatWindowShort(d(2026, 12, 15), d(2027, 1, 14)), '15. 12. 2026 – 14. 1. 2027');
+    });
+  });
+
   group('daysLeftLabel counts today', () {
     final windowEnd = d(2026, 11, 30);
 
@@ -44,6 +55,26 @@ void main() {
       expect(formatDay(d(2026, 11, 12)), 'št 12. 11.');
       expect(formatDay(d(2026, 11, 9)), 'po 9. 11.');
       expect(formatDay(d(2026, 11, 15)), 'ne 15. 11.');
+    });
+  });
+
+  group('weeks', () {
+    test('start on Monday', () {
+      expect(weekStart(d(2026, 11, 12)), d(2026, 11, 9));
+      expect(weekStart(d(2026, 11, 9)), d(2026, 11, 9));
+      expect(weekStart(d(2026, 11, 15)), d(2026, 11, 9));
+      expect(weekStart(d(2026, 11, 1)), d(2026, 10, 26));
+    });
+
+    test('are labelled by their days, the current one as this week', () {
+      final today = d(2026, 11, 12);
+      expect(weekLabel(d(2026, 11, 9), today), 'Tento týždeň');
+      expect(weekLabel(d(2026, 11, 2), today), '2. – 8. 11.');
+      expect(weekLabel(d(2026, 10, 26), today), '26. 10. – 1. 11.');
+    });
+
+    test('weekday abbreviation', () {
+      expect(weekdayAbbreviation(d(2026, 11, 12)), 'št');
     });
   });
 }

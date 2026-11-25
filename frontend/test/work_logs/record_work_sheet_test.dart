@@ -14,17 +14,19 @@ Finder inSheet(Finder matching) => find.descendant(of: sheet, matching: matching
 /// Slovak formatting separates thousands and the currency sign with a no-break space.
 const nbsp = '\u00A0';
 
-Finder get hoursField => inSheet(find.widgetWithText(TextField, 'Hodiny'));
+Finder button(String key) => inSheet(find.byKey(Key(key)));
 
-Finder get minutesField => inSheet(find.widgetWithText(TextField, 'Minúty'));
-
-String textOf(WidgetTester tester, Finder field) => tester.widget<TextField>(field).controller!.text;
-
-Future<void> type(WidgetTester tester, {required String hours, required String minutes}) async {
-  await tester.enterText(hoursField, hours);
-  await tester.enterText(minutesField, minutes);
-  await tester.pump();
+Future<void> tapIn(WidgetTester tester, String key, {int times = 1}) async {
+  for (var i = 0; i < times; i++) {
+    await tester.tap(button(key));
+    await tester.pump();
+  }
 }
+
+String timeShown(WidgetTester tester) => tester.widget<Text>(inSheet(find.byKey(const Key('work-log-time')))).data!;
+
+bool enabled(WidgetTester tester, String key) =>
+    tester.widget<OutlinedButton>(find.descendant(of: button(key), matching: find.byType(OutlinedButton))).onPressed != null;
 
 Finder get saveButton => inSheet(find.widgetWithText(FilledButton, 'Uložiť'));
 
@@ -41,32 +43,77 @@ void main() {
       await openSheet(tester);
 
       expect(inSheet(find.text('Zapísať prácu')), findsOneWidget);
-      expect(inSheet(find.text('dnes, št 12. 11.')), findsOneWidget);
+      expect(inSheet(find.text('Dnes, št 12. 11.')), findsOneWidget);
     });
   }
 
-  testWidgets('a quick choice fills in whole hours', (tester) async {
+  testWidgets('starts with no time, so nothing can be saved yet', (tester) async {
     await pumpApp(tester);
     await openSheet(tester);
-    await type(tester, hours: '3', minutes: '20');
 
-    await tester.tap(inSheet(find.widgetWithText(ActionChip, '6 h')));
-    await tester.pump();
+    expect(timeShown(tester), '0 h');
+    expect(tester.widget<FilledButton>(saveButton).onPressed, isNull);
+    expect(enabled(tester, 'minus-15'), isFalse);
+    expect(enabled(tester, 'minus-30'), isFalse);
+  });
 
-    expect(textOf(tester, hoursField), '6');
-    expect(textOf(tester, minutesField), '0');
+  testWidgets('a quick choice sets whole hours and stays highlighted', (tester) async {
+    await pumpApp(tester);
+    await openSheet(tester);
+
+    await tapIn(tester, 'quick-6');
+
+    expect(timeShown(tester), '6 h');
     for (final hours in [1, 2, 4, 8]) {
-      expect(inSheet(find.widgetWithText(ActionChip, '$hours h')), findsOneWidget);
+      expect(button('quick-$hours'), findsOneWidget);
     }
+    Color? background(String key) => tester
+        .widget<OutlinedButton>(find.descendant(of: button(key), matching: find.byType(OutlinedButton)))
+        .style!
+        .backgroundColor!
+        .resolve({});
+    expect(background('quick-6'), isNot(background('quick-8')));
+  });
+
+  testWidgets('the buttons step by 15 and 30 minutes', (tester) async {
+    await pumpApp(tester);
+    await openSheet(tester);
+
+    await tapIn(tester, 'plus-15');
+    expect(timeShown(tester), '15 min');
+    await tapIn(tester, 'plus-30', times: 2);
+    expect(timeShown(tester), '1 h 15');
+    await tapIn(tester, 'minus-15');
+    expect(timeShown(tester), '1 h');
+    await tapIn(tester, 'minus-30');
+    expect(timeShown(tester), '30 min');
+  });
+
+  testWidgets('the buttons keep the time between 15 minutes and 24 hours', (tester) async {
+    await pumpApp(tester);
+    await openSheet(tester);
+
+    await tapIn(tester, 'plus-30');
+    await tapIn(tester, 'minus-30');
+    expect(timeShown(tester), '15 min');
+    expect(enabled(tester, 'minus-15'), isFalse);
+
+    await tapIn(tester, 'quick-8');
+    await tapIn(tester, 'plus-30', times: 33);
+    expect(timeShown(tester), '24 h');
+    expect(enabled(tester, 'plus-15'), isFalse);
+    expect(enabled(tester, 'plus-30'), isFalse);
+    expect(tester.widget<FilledButton>(saveButton).onPressed, isNotNull);
   });
 
   testWidgets('previews the earnings at the current rate', (tester) async {
     await pumpApp(tester);
     await openSheet(tester);
 
-    await type(tester, hours: '6', minutes: '30');
+    await tapIn(tester, 'quick-6');
+    await tapIn(tester, 'plus-30');
 
-    expect(inSheet(find.text('= 260$nbsp€ pri 40$nbsp€ / h')), findsOneWidget);
+    expect(inSheet(find.text('= 260$nbsp€ pri 40$nbsp€/h')), findsOneWidget);
   });
 
   testWidgets('records the work, closes the sheet and refreshes', (tester) async {
@@ -75,7 +122,8 @@ void main() {
     await pumpApp(tester, overviewApi: overviewApi, workLogApi: workLogApi);
     final overviewLoads = overviewApi.requestedDays.length;
     await openSheet(tester);
-    await type(tester, hours: '6', minutes: '30');
+    await tapIn(tester, 'quick-6');
+    await tapIn(tester, 'plus-30');
 
     await tester.tap(saveButton);
     await tester.pumpAndSettle();
@@ -86,33 +134,17 @@ void main() {
     expect(overviewApi.requestedDays.length, overviewLoads + 1);
   });
 
-  testWidgets('cannot save less than a minute, more than a day or nonsense', (tester) async {
-    await pumpApp(tester);
-    await openSheet(tester);
-
-    for (final (hours, minutes) in [('', ''), ('0', '0'), ('24', '1'), ('25', ''), ('1', '60'), ('x', '5'), ('-1', '30')]) {
-      await type(tester, hours: hours, minutes: minutes);
-
-      expect(tester.widget<FilledButton>(saveButton).onPressed, isNull, reason: '$hours h $minutes min');
-    }
-
-    await type(tester, hours: '24', minutes: '');
-    expect(tester.widget<FilledButton>(saveButton).onPressed, isNotNull);
-    await type(tester, hours: '', minutes: '1');
-    expect(tester.widget<FilledButton>(saveButton).onPressed, isNotNull);
-  });
-
   testWidgets('keeps the sheet open when saving fails', (tester) async {
     await pumpApp(tester, workLogApi: FakeWorkLogApi()..failSaving = true);
     await openSheet(tester);
-    await type(tester, hours: '6', minutes: '30');
+    await tapIn(tester, 'quick-6');
+    await tapIn(tester, 'plus-30');
 
     await tester.tap(saveButton);
     await tester.pumpAndSettle();
 
     expect(inSheet(find.text('Uloženie zlyhalo.')), findsOneWidget);
-    expect(textOf(tester, hoursField), '6');
-    expect(textOf(tester, minutesField), '30');
+    expect(timeShown(tester), '6 h 30');
     expect(tester.widget<FilledButton>(saveButton).onPressed, isNotNull);
   });
 
@@ -121,14 +153,14 @@ void main() {
     await pumpApp(tester, workLogApi: workLogApi);
     await openSheet(tester);
 
-    await tester.tap(inSheet(find.text('dnes, št 12. 11.')));
+    await tester.tap(inSheet(find.text('Dnes, št 12. 11.')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('10'));
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
     expect(inSheet(find.text('ut 10. 11.')), findsOneWidget);
-    await type(tester, hours: '2', minutes: '');
+    await tapIn(tester, 'quick-2');
     await tester.tap(saveButton);
     await tester.pumpAndSettle();
     expect(workLogApi.recorded.single, (DateTime(2026, 11, 10), 120));
@@ -138,7 +170,7 @@ void main() {
     await pumpApp(tester);
     await openSheet(tester);
 
-    await tester.tap(inSheet(find.text('dnes, št 12. 11.')));
+    await tester.tap(inSheet(find.text('Dnes, št 12. 11.')));
     await tester.pumpAndSettle();
 
     final picker = tester.widget<DatePickerDialog>(find.byType(DatePickerDialog));
