@@ -165,7 +165,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
      - prepínač Svetlý / Tmavý / Systém v Nastaveniach (`SegmentedButton`), predvolene Systém
      - voľba sa ukladá cez `shared_preferences` (na webe localStorage), platí pre zariadenie, nie pre účet; načíta sa v `main` pred štartom, takže téma neblikne
      - hotové, keď na produkcii vidím modrú a prepnutie témy prežije obnovenie stránky
-   - [ ] 5.5 Moderný vzhľad (smer Hourlie)
+   - [x] 5.5 Moderný vzhľad (smer Hourlie)
      - problém: UI je funkčné, ale pôsobí ako neupravený Material 3 (Roboto, tenké pruhy, riadky bez skupín, takmer rovnako veľké texty)
      - predloha: [plátno Earnings Tracker redizajn](https://claude.ai/artifact/LADcaCfVdMxcE9ymgdSQNL), spodný riadok „Smer Hourlie“ (Prehľad, Záznamy, Zápis práce); je to konkrétna odsúhlasená predstava, nie inšpirácia, rozmery, farby a rozloženie brať z nej (horný riadok „Teraz“ je iba porovnanie so súčasným stavom)
      - mení sa iba vzhľad, nie funkcie, API ani doménová logika; widget testy upraviť podľa nových textov a kľúčov
@@ -195,7 +195,7 @@ Pojmy sú definované v [CONTEXT.md](../CONTEXT.md), technologické rozhodnutia 
        - rýchle voľby 1, 2, 4, 6, 8 h ako mriežka tlačidiel, zvolená modrá
        - pole h a min sa odstraňuje, bežne zapisujem po 15 minútach; vrátiť, ak bude jemnejšia hodnota chýbať (backend aj úprava staršieho záznamu s inou hodnotou ostávajú bez zmeny, tlačidlá ju posúvajú od pôvodnej)
        - dole „Zrušiť“ obrysové a „Uložiť“ plné; pri úprave 🗑 ako doteraz
-     - [ ] 5.5.6 Zvyšok a nasadenie
+     - [x] 5.5.6 Zvyšok a nasadenie
        - Plány, formulár plánu, Nastavenia a Prihlásenie zjednotiť cez tému, bez samostatného návrhu
        - hotové, keď na produkcii na telefóne aj monitore vidím nový vzhľad podľa predlohy vo svetlej aj tmavej téme a prepínač Svetlý / Tmavý / Systém funguje ako po 5.4
 6. **1 až 2 okná zárabania** vlastného používania, zapisovanie postrehov.
